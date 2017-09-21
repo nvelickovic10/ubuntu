@@ -38,7 +38,6 @@ mythes-en-au
 my-weather-indicator
 oracle-java8-installer
 peek
-pinta
 poedit
 preload
 skypeforlinux
