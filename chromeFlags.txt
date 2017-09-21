@@ -1,0 +1,5 @@
+#num-raster-threads default:default
+#enable-scroll-prediction default:disabled
+#enable-fast-unload default:disabled
+#enable-experimental-canvas-features default:disabled
+#enable-simple-cache-backend default:default
