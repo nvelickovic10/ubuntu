@@ -47,4 +47,3 @@ stress
 thunderbird-locale-en-gb
 touchpad-indicator
 tree
-
