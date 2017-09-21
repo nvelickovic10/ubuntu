@@ -28,6 +28,7 @@ libreoffice-help-en-gb
 libreoffice-l10n-en-za
 libtool
 libtool-bin
+libxcb-xtest0
 linux-cloud-tools-4.10.0-33-generic
 linux-cloud-tools-4.10.0-33-lowlatency
 linux-tools-4.10.0-33-generic
@@ -46,3 +47,4 @@ stress
 thunderbird-locale-en-gb
 touchpad-indicator
 tree
+zoom
