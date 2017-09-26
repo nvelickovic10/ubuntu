@@ -3,6 +3,7 @@ aptitude
 caffeine
 code
 compizconfig-settings-manager
+cups-pdf
 curl
 dconf-tools
 deja-dup-backend-gvfs
@@ -24,6 +25,7 @@ jq
 libc6:i386
 libgl1-mesa-dri:i386
 libgl1-mesa-glx:i386
+libnss3-tools
 libreoffice-help-en-gb
 libreoffice-l10n-en-za
 libtool
