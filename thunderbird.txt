@@ -1,3 +1,0 @@
-if calendar authentication is not working try reinstalling ews extension
-
-Thunderbird/exchangecalendar-4.0.1002.xpi
