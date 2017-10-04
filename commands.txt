@@ -30,4 +30,11 @@ https://askubuntu.com/questions/854373/how-to-create-a-desktop-shortcut
 #module loading modprobe msr
 sudo vi /etc/modules-load.d/modules.conf
 
+#Sync files between two folders
+rsync -av --delete /Directory1/ /Directory2/
 
+#battery current stat
+cat /sys/class/power_supply/BAT1/current_now
+
+#watch command outpun on every 2 seconds
+watch -n2 [commannd]
