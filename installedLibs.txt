@@ -42,6 +42,7 @@ my-weather-indicator
 oracle-java8-installer
 peek
 poedit
+powerstat
 preload
 skypeforlinux
 smartmontools
