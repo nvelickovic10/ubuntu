@@ -46,6 +46,8 @@ preload
 skypeforlinux
 smartmontools
 stress
+suld-driver2-1.00.36
+suldr-keyring
 thunderbird-locale-en-gb
 touchpad-indicator
 tree
