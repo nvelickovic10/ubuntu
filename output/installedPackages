@@ -11,6 +11,7 @@ docker-ce
 exfat-fuse
 exfat-utils
 git
+gksu
 gnome-panel
 google-chrome-stable
 gparted
@@ -46,6 +47,7 @@ powerstat
 preload
 skypeforlinux
 smartmontools
+spotify-client
 stress
 suld-driver2-1.00.36
 suldr-keyring
@@ -53,4 +55,3 @@ thunderbird-locale-en-gb
 touchpad-indicator
 tree
 zoom
-

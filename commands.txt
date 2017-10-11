@@ -38,3 +38,34 @@ cat /sys/class/power_supply/BAT1/current_now
 
 #watch command outpun on every 2 seconds
 watch -n2 [commannd]
+
+#firewall
+sudo ufw enable/disable
+sudo ufw status verbose
+
+#ubuntu optimization
+https://sites.google.com/site/easylinuxtipsproject/first
+
+#move /tmp to tmpfs virtual memory
+#https://sites.google.com/site/easylinuxtipsproject/speed
+sudo cp -v /usr/share/systemd/tmp.mount /etc/systemd/system/
+sudo systemctl enable tmp.mount
+systemctl status tmp.mount
+
+#wifi iwlifi
+#iwconfig
+echo "options iwlwifi 11n_disable=8" | sudo tee /etc/modprobe.d/iwlwifi11n.conf
+sudo rm -v /etc/modprobe.d/iwlwifi11n.conf
+
+#wifi disable power management
+/etc/NetworkManager/conf.d/default-wifi-powersave-on.conf #default=3
+
+#SSD Optimization
+https://sites.google.com/site/easylinuxtipsproject/ssd
+
+#SSD trim move from weekly to daily
+sudo mv -v /etc/cron.weekly/fstrim /etc/cron.daily
+sudo mv -v /etc/cron.daily/fstrim /etc/cron.weekly/fstrim
+
+#run trim manually
+sudo fstrim -v /
