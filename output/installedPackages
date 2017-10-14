@@ -23,12 +23,15 @@ hyphen-en-gb
 indicator-multiload
 intltool
 jq
+kernel-package
 libc6:i386
 libgl1-mesa-dri:i386
 libgl1-mesa-glx:i386
+libncurses5-dev
 libnss3-tools
 libreoffice-help-en-gb
 libreoffice-l10n-en-za
+libssl-dev
 libtool
 libtool-bin
 libxcb-xtest0
@@ -45,6 +48,8 @@ peek
 poedit
 powerstat
 preload
+psensor
+qt5-default
 skypeforlinux
 smartmontools
 spotify-client

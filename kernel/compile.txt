@@ -1,0 +1,8 @@
+make menuconfig
+
+make-kpkg clean
+
+fakeroot make-kpkg --initrd --append-to-version=-custom kernel_image kernel_headers
+fakeroot make-kpkg --initrd --revision=1.0.custom kernel_image
+
+
