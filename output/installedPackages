@@ -1,3 +1,4 @@
+aircrack-ng
 apt-file
 aptitude
 caffeine
@@ -25,6 +26,7 @@ intltool
 jq
 kernel-package
 libc6:i386
+libclc-amdgcn
 libgl1-mesa-dri:i386
 libgl1-mesa-glx:i386
 libncurses5-dev
@@ -40,16 +42,20 @@ linux-cloud-tools-4.10.0-33-lowlatency
 linux-tools-4.10.0-33-generic
 linux-tools-4.10.0-33-lowlatency
 lm-sensors
+mesa-opencl-icd
 mesa-utils
 mythes-en-au
 my-weather-indicator
 oracle-java8-installer
+p7zip-full
 peek
 poedit
 powerstat
+powertop
 preload
 psensor
 qt5-default
+radeontop
 skypeforlinux
 smartmontools
 spotify-client
@@ -59,4 +65,5 @@ suldr-keyring
 thunderbird-locale-en-gb
 touchpad-indicator
 tree
+wireshark
 zoom
