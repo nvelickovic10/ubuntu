@@ -1,1 +1,27 @@
 https://askubuntu.com/questions/95345/how-to-make-spotify-the-default-music-player
+
+#ubuntu 2D
+https://askubuntu.com/questions/132329/what-is-the-app-compiz-responsible-for-on-ubuntu-12-04
+
+# find out what these packages are
+libc6:i386
+libclc-amdgcn
+libgl1-mesa-dri:i386
+libgl1-mesa-glx:i386
+libncurses5-dev
+libnss3-tools
+libssl-dev
+libtool
+libtool-bin
+libxcb-xtest0
+linux-cloud-tools-4.10.0-33-generic
+linux-cloud-tools-4.10.0-33-lowlatency
+linux-tools-4.10.0-33-generic
+linux-tools-4.10.0-33-lowlatency
+mesa-opencl-icd
+mesa-utils
+mythes-en-au
+
+# pidgin
+sudo find / -name "*purple*" 
+

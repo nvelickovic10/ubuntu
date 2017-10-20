@@ -1,1 +1,5 @@
 Grub will load if you hold shift
+
+To hide the drive icon from launcher, change the following setting in dconf editor:
+com.canonical.Unity.Devices.blacklist - add the UUID-Label pair
+you can find the UUID by running sudo blkid -o list

@@ -4,19 +4,6 @@ comm -23 <(aptitude search '~i !~M' -F '%p' | sed "s/ *$//" | sort -u) <(gzip -d
 #List kernel version 
 uname -a
 
-#Verify current state of graphics card
-sudo cat /sys/kernel/debug/vgaswitcheroo/switch
-
-#Turns on the GPU that is disconnected (not currently driving outputs), but does not switch output
-sudo echo ON > /sys/kernel/debug/vgaswitcheroo/switch
-
-#Connects integrated graphics with outputs.
-sudo echo IGD > /sys/kernel/debug/vgaswitcheroo/switch
-
-#Connects integrated graphics with outputs.
-sudo echo DIS > /sys/kernel/debug/vgaswitcheroo/switch
-https://help.ubuntu.com/community/HybridGraphics
-
 #Run chrome with dedicatred graphics
 DRI_PRIME=1 google-chrome
 
