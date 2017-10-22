@@ -1,7 +1,5 @@
-aircrack-ng
 apt-file
 aptitude
-bridge-utils
 caffeine
 code
 compizconfig-settings-manager
@@ -17,7 +15,6 @@ gksu
 gnome-panel
 google-chrome-stable
 gparted
-hostapd
 hunspell-en-au
 hunspell-en-ca
 hunspell-en-gb
@@ -25,7 +22,6 @@ hunspell-en-za
 hyphen-en-gb
 indicator-multiload
 intltool
-isc-dhcp-server
 jq
 kernel-package
 libc6:i386
@@ -52,13 +48,10 @@ linux-image-extra-4.10.0-37-generic
 linux-tools-4.10.0-33-generic
 linux-tools-4.10.0-33-lowlatency
 lm-sensors
-macchanger
-mdk3
 mesa-opencl-icd
 mesa-utils
 mythes-en-au
 my-weather-indicator
-nmap
 oracle-java8-installer
 p7zip
 p7zip-full
@@ -76,6 +69,7 @@ powertop
 preload
 psensor
 pulseaudio-equalizer
+pv
 pyrit
 python-scapy
 python-sqlalchemy
@@ -94,5 +88,4 @@ thunderbird-locale-en-gb
 touchpad-indicator
 tree
 ubuntu-restricted-extras
-wireshark
 zoom
