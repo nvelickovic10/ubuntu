@@ -56,3 +56,6 @@ sudo mv -v /etc/cron.daily/fstrim /etc/cron.weekly/fstrim
 
 #run trim manually
 sudo fstrim -v /
+
+# Show Hidden Startup Apps:
+sudo sed -i "s/NoDisplay=true/NoDisplay=false/g" /etc/xdg/autostart/*.desktop

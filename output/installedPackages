@@ -2,7 +2,6 @@ apt-file
 aptitude
 caffeine
 code
-compizconfig-settings-manager
 cups-pdf
 curl
 dconf-tools
@@ -10,6 +9,7 @@ deja-dup-backend-gvfs
 docker-ce
 exfat-fuse
 exfat-utils
+gimp
 git
 gksu
 gnome-panel
@@ -70,7 +70,6 @@ preload
 psensor
 pulseaudio-equalizer
 pv
-pyrit
 python-scapy
 python-sqlalchemy
 python-sqlalchemy-ext
