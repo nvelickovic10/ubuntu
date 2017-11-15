@@ -1,5 +1,6 @@
 Grub will load if you hold shift
 
+# works only until the drive is unpluged
 To hide the drive icon from launcher, change the following setting in dconf editor:
 com.canonical.Unity.Devices.blacklist - add the UUID-Label pair
 you can find the UUID by running sudo blkid -o list
@@ -9,3 +10,6 @@ gedit /usr/share/plymouth/themes/ubuntu-logo/ubuntu-logo.script
 Window.SetBackgroundTopColor (0.0, 0.00, 0.0);     # Nice colour on top of the screen fading to
 Window.SetBackgroundBottomColor (0.0, 0.00, 0.0);  # an equally nice colour on the bottom
 sudo update-initramfs -u
+
+https://github.com/wting/autojump
+j tmflex

@@ -1,7 +1,5 @@
-https://askubuntu.com/questions/95345/how-to-make-spotify-the-default-music-player
-
 Graphics card probably not working 100%
 
-Remove docker
-
 Mail settings
+
+Login screen

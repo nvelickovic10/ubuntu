@@ -1,12 +1,12 @@
 apt-file
 aptitude
+autojump
 caffeine
 code
 cups-pdf
 curl
 dconf-tools
 deja-dup-backend-gvfs
-docker-ce
 exfat-fuse
 exfat-utils
 gimp
@@ -75,11 +75,11 @@ python-sqlalchemy
 python-sqlalchemy-ext
 qt5-default
 radeontop
+rhythmbox-plugin-equalizer
 selinux-utils
 skypeforlinux
 smartmontools
 spawn-fcgi
-spotify-client
 stress
 suld-driver2-1.00.36
 suldr-keyring
