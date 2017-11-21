@@ -7,3 +7,5 @@ Writable memory is the amount of address space that your process has allocated w
 Shared memory is memory that may be simultaneously accessed by multiple programs with an intent to provide communication among them or avoid redundant copies.
 
 X server memory is the amount used by the X server for the GUI-session.
+
+free
