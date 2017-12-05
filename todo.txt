@@ -3,3 +3,8 @@ Graphics card probably not working 100%
 Mail settings
 
 Login screen
+
+what is? /usr/local/bin/revolver
+
+dpkg cleanup
+https://raymii.org/s/tutorials/Debian-apt-get-dpkg-packages-cleanup-commands.html
