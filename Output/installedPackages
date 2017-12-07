@@ -3,6 +3,7 @@ aptitude
 autojump
 caffeine
 code
+copyq
 cups-pdf
 curl
 cycligentgittool
@@ -29,6 +30,7 @@ libc6:i386
 libclc-amdgcn
 libgl1-mesa-dri:i386
 libgl1-mesa-glx:i386
+libgtop2-7
 libirs-export141
 libisccc-export140
 libisccfg-export140
@@ -82,6 +84,8 @@ skypeforlinux
 smartmontools
 spawn-fcgi
 stress
+suld-driver-4.00.35
+suldr-keyring
 thunderbird-locale-en-gb
 touchpad-indicator
 tree
