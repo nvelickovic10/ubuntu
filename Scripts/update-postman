@@ -1,0 +1,21 @@
+#!/bin/bash
+
+if [ "$EUID" -ne 0 ]
+  then echo "Please run as root"
+  exit 1
+fi
+
+# killall -9 Postman
+
+rm -r /tmp/Postman*
+wget -O /tmp/Postman.tar.gz https://dl.pstmn.io/download/latest/linux64
+
+rm -r /opt/Postman.old
+mv /opt/Postman /opt/Postman.old
+
+tar -xzf /tmp/Postman.tar.gz -C /tmp
+
+mv /tmp/Postman /opt
+# rm -r /tmp/Postman*
+
+# Postman &

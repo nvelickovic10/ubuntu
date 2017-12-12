@@ -1,15 +1,6 @@
-# Graphics card probably not working 100%
-
 # Mail settings
 
 # Login screen
 
 # what is? /usr/local/bin/revolver
-
-# nvelickovic10@NVHPG6:~$ diff -r /media/nvelickovic10/WD_DATA/Slike/ /media/nvelickovic10/662850122EA72360/Slike/
-	Binary files /media/nvelickovic10/WD_DATA/Slike/Dubai/tata dubai backup/DSC00071.JPG and /media/nvelickovic10/662850122EA72360/Slike/Dubai/tata dubai backup/DSC00071.JPG differ
-	Only in /media/nvelickovic10/662850122EA72360/Slike/Nemanja/Ostalo: 2013-02-02 01.55.14.jpg
-	Only in /media/nvelickovic10/662850122EA72360/Slike/Nemanja/Ostalo: Akcije
-	Only in /media/nvelickovic10/662850122EA72360/Slike/Nemanja/Ostalo: Smesno
-	Only in /media/nvelickovic10/662850122EA72360/Slike/Nemanja: Vazno
 
