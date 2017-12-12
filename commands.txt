@@ -28,6 +28,9 @@
 # List user installed packages from apt-get
 	comm -23 <(aptitude search '~i !~M' -F '%p' | sed "s/ *$//" | sort -u) <(gzip -dc /var/log/installer/initial-status.gz | sed -n 's/^Package: //p' | sort -u)
 
+# List packages sorted by priority
+	 dpkg-query -Wf '${Package;-40}${Priority}\n' | sort -b -k2,2 -k1,1
+
 # battery current stat
 	cat /sys/class/power_supply/BAT1/current_now
 

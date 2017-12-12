@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+# This script will list all packages and its ppa repository
+
 for f in /etc/apt/sources.list.d/*.list; do
     grep -Po "(?<=^deb\s).*?(?=#|$)" "$f" | while read -r ENTRY ; do
     echo "ENTRY: $ENTRY"

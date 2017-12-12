@@ -4,3 +4,5 @@
 
 # what is? /usr/local/bin/revolver
 
+# installed-packages get rid of cwd
+
