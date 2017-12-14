@@ -78,13 +78,10 @@ python-sqlalchemy
 python-sqlalchemy-ext
 qt5-default
 radeontop
-rhythmbox-plugin-equalizer
 selinux-utils
 smartmontools
 spawn-fcgi
 stress
-suld-driver-4.00.35
-suldr-keyring
 thunderbird-locale-en-gb
 touchpad-indicator
 tree
