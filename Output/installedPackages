@@ -9,6 +9,7 @@ curl
 cycligentgittool
 dconf-tools
 deja-dup-backend-gvfs
+dkms
 exfat-fuse
 exfat-utils
 gimp
@@ -24,6 +25,7 @@ hunspell-en-za
 hyphen-en-gb
 indicator-multiload
 intltool
+ipscan
 jq
 kernel-package
 libc6:i386
@@ -51,6 +53,7 @@ linux-image-extra-4.10.0-37-generic
 linux-tools-4.10.0-33-generic
 linux-tools-4.10.0-33-lowlatency
 lm-sensors
+meld
 mesa-opencl-icd
 mesa-utils
 mythes-en-au
@@ -86,5 +89,6 @@ thunderbird-locale-en-gb
 touchpad-indicator
 tree
 ubuntu-restricted-extras
+virtualbox-5.2
 y-ppa-manager
 zoom
