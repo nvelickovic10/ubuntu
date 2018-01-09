@@ -8,3 +8,6 @@
 
 # system and dpkg cleanup
 # https://raymii.org/s/tutorials/Debian-apt-get-dpkg-packages-cleanup-commands.html
+
+# purge packages from ppa repo
+# https://www.tecmint.com/add-remove-purge-ppa-in-ubuntu/
