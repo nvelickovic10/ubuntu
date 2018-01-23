@@ -30,8 +30,6 @@ jq
 kernel-package
 libc6:i386
 libclc-amdgcn
-libgl1-mesa-dri:i386
-libgl1-mesa-glx:i386
 libgtop2-7
 libirs-export141
 libisccc-export140
@@ -46,12 +44,7 @@ libssl-dev
 libtool
 libtool-bin
 libxcb-xtest0
-linux-cloud-tools-4.10.0-33-generic
-linux-cloud-tools-4.10.0-33-lowlatency
-linux-image-extra-4.10.0-35-generic
-linux-image-extra-4.10.0-37-generic
-linux-tools-4.10.0-33-generic
-linux-tools-4.10.0-33-lowlatency
+linux-generic-hwe-16.04-edge
 lm-sensors
 meld
 mesa-opencl-icd
