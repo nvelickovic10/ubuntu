@@ -1,5 +1,20 @@
 # List kernel version 
-	uname -a
+	uname -r
+	
+# battery current stat
+	cat /sys/class/power_supply/BAT1/current_now
+	
+# https://github.com/wting/autojump
+	j tmflex
+
+# watch command outpun on every 2 seconds
+	watch -n2 [commannd]
+	
+# find files fastfast
+  locate <filename>
+  sudo updatedb --> update database
+	
+==========================================================================
 
 # Memory
 # Virtual memory accounts for all the libraries and executable objects that are mapped into your process, as well as your stack space.
@@ -13,7 +28,35 @@
 # X server memory is the amount used by the X server for the GUI-session.
 	free
 
+==========================================================================
 
+# Prevent package from updating
+  sudo apt-mark hold/unhold <package-name>
+
+# List user installed packages from apt-get
+	comm -23 <(aptitude search '~i !~M' -F '%p' | sed "s/ *$//" | sort -u) <(gzip -dc /var/log/installer/initial-status.gz | sed -n 's/^Package: //p' | sort -u)
+
+# system and dpkg cleanup
+# https://raymii.org/s/tutorials/Debian-apt-get-dpkg-packages-cleanup-commands.html
+
+# purge packages from ppa repo
+# https://www.tecmint.com/add-remove-purge-ppa-in-ubuntu/
+
+# List obsolete packages (no longer can be downloaded from ppa repository)
+  aptitude search ~o
+
+# List packages sorted by priority
+# https://askubuntu.com/questions/79665/keep-only-essential-packages
+	 dpkg-query -Wf '${Package;-40}${Priority}\n' | sort -b -k2,2 -k1,1
+
+==========================================================================
+
+# Run chrome with dedicatred graphics
+	DRI_PRIME=1 google-chrome
+
+# Disable v-sync environment variable
+	vblank_mode=0
+	
 ==========================================================================
 
 # Sync files between two folders
@@ -24,88 +67,3 @@
 	diff -r /media/nvelickovic10/WD_DATA/Slike/ /media/nvelickovic10/662850122EA72360/Slike/
 
 ==========================================================================
-
-# List obsolete packages (no longer can be downloaded from ppa repository)
-  aptitude search ~o
-
-# List user installed packages from apt-get
-	comm -23 <(aptitude search '~i !~M' -F '%p' | sed "s/ *$//" | sort -u) <(gzip -dc /var/log/installer/initial-status.gz | sed -n 's/^Package: //p' | sort -u)
-
-# List packages sorted by priority
-# https://askubuntu.com/questions/79665/keep-only-essential-packages
-	 dpkg-query -Wf '${Package;-40}${Priority}\n' | sort -b -k2,2 -k1,1
-
-# battery current stat
-	cat /sys/class/power_supply/BAT1/current_now
-
-==========================================================================
-
-# Run chrome with dedicatred graphics
-	DRI_PRIME=1 google-chrome
-
-# Disable v-sync environment variable
-	vblank_mode=0
-
-==========================================================================
-
-# module loading modprobe msr
-	sudo vi /etc/modules-load.d/modules.conf
-
-# firewall
-	sudo ufw enable/disable
-	sudo ufw status verbose
-
-==========================================================================
-
-# ubuntu optimization
-# https://sites.google.com/site/easylinuxtipsproject/first
-
-# move /tmp to tmpfs virtual memory
-#https://sites.google.com/site/easylinuxtipsproject/speed
-	sudo cp -v /usr/share/systemd/tmp.mount /etc/systemd/system/
-	sudo systemctl enable tmp.mount
-	systemctl status tmp.mount
-
-# wifi iwlifi
-#iwconfig
-	echo "options iwlwifi 11n_disable=8" | sudo tee /etc/modprobe.d/iwlwifi11n.conf
-	sudo rm -v /etc/modprobe.d/iwlwifi11n.conf
-
-# wifi disable power management
-	/etc/NetworkManager/conf.d/default-wifi-powersave-on.conf #default=3
-
-# SSD Optimization
-# https://sites.google.com/site/easylinuxtipsproject/ssd
-
-# SSD trim move from weekly to daily
-	sudo mv -v /etc/cron.weekly/fstrim /etc/cron.daily
-	sudo mv -v /etc/cron.daily/fstrim /etc/cron.weekly/fstrim
-
-# run trim manually
-	sudo fstrim -v /
-
-==========================================================================
-
-# Show Hidden Startup Apps:
-	sudo sed -i "s/NoDisplay=true/NoDisplay=false/g" /etc/xdg/autostart/*.desktop
-
-# create desktop shortcut
-	gnome-desktop-item-edit --create-new ~/Desktop
-	https://askubuntu.com/questions/854373/how-to-create-a-desktop-shortcut
-
-# works only until the drive is unpluged
-# To hide the drive icon from launcher, change the following setting in dconf editor:
-# you can find the UUID by running sudo blkid -o list
-	com.canonical.Unity.Devices.blacklist - add the UUID-Label pair
-
-# Change background color of boot splash https://askubuntu.com/questions/20829/how-can-i-change-the-purple-background-color-of-ubuntu-plymouth-boot-screen
-	sudo gedit /usr/share/plymouth/themes/ubuntu-logo/ubuntu-logo.script
-		Window.SetBackgroundTopColor (0.0, 0.00, 0.0);     # Nice colour on top of the screen fading to
-		Window.SetBackgroundBottomColor (0.0, 0.00, 0.0);  # an equally nice colour on the bottom
-	sudo update-initramfs -u
-	
-	sudo gedit /usr/share/plymouth/themes/ubuntu-logo/ubuntu-logo.grub
-	sudo update-grub
-	
-# Change background color of login screen
-https://www.linuxquestions.org/questions/ubuntu-63/login-screen-grid-4175581227/

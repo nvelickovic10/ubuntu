@@ -1,13 +1,68 @@
 # Grub will load if you hold shift
+	
+==========================================================================	
 
-# https://github.com/wting/autojump
-	j tmflex
+# module loading modprobe msr
+	sudo vi /etc/modules-load.d/modules.conf
 
-# watch command outpun on every 2 seconds
-	watch -n2 [commannd]
+# firewall
+	sudo ufw enable/disable
+	sudo ufw status verbose
 
-# system and dpkg cleanup
-# https://raymii.org/s/tutorials/Debian-apt-get-dpkg-packages-cleanup-commands.html
+==========================================================================
 
-# purge packages from ppa repo
-# https://www.tecmint.com/add-remove-purge-ppa-in-ubuntu/
+# ubuntu optimization
+# https://sites.google.com/site/easylinuxtipsproject/first
+
+# move /tmp to tmpfs virtual memory
+# https://sites.google.com/site/easylinuxtipsproject/speed
+	sudo cp -v /usr/share/systemd/tmp.mount /etc/systemd/system/
+	sudo systemctl enable tmp.mount
+	systemctl status tmp.mount
+	
+# wifi iwlifi
+# iwconfig
+	echo "options iwlwifi 11n_disable=8" | sudo tee /etc/modprobe.d/iwlwifi11n.conf
+	sudo rm -v /etc/modprobe.d/iwlwifi11n.conf
+
+# wifi disable power management
+	/etc/NetworkManager/conf.d/default-wifi-powersave-on.conf #default=3
+
+# SSD Optimization
+# https://sites.google.com/site/easylinuxtipsproject/ssd
+
+# SSD trim move from weekly to daily
+	sudo mv -v /etc/cron.weekly/fstrim /etc/cron.daily
+	sudo mv -v /etc/cron.daily/fstrim /etc/cron.weekly/fstrim
+
+# run trim manually
+	sudo fstrim -v /
+	
+==========================================================================
+
+# Show Hidden Startup Apps:
+	sudo sed -i "s/NoDisplay=true/NoDisplay=false/g" /etc/xdg/autostart/*.desktop
+
+# create desktop shortcut
+	gnome-desktop-item-edit --create-new ~/Desktop
+	https://askubuntu.com/questions/854373/how-to-create-a-desktop-shortcut
+
+# works only until the drive is unpluged
+# To hide the drive icon from launcher, change the following setting in dconf editor:
+# you can find the UUID by running sudo blkid -o list
+	com.canonical.Unity.Devices.blacklist - add the UUID-Label pair
+
+# Change background color of boot splash https://askubuntu.com/questions/20829/how-can-i-change-the-purple-background-color-of-ubuntu-plymouth-boot-screen
+	sudo gedit /usr/share/plymouth/themes/ubuntu-logo/ubuntu-logo.script
+		Window.SetBackgroundTopColor (0.0, 0.00, 0.0);     # Nice colour on top of the screen fading to
+		Window.SetBackgroundBottomColor (0.0, 0.00, 0.0);  # an equally nice colour on the bottom
+	sudo update-initramfs -u
+	
+	sudo gedit /usr/share/plymouth/themes/ubuntu-logo/ubuntu-logo.grub
+	sudo update-grub
+	
+# Change background color of login screen
+  https://www.linuxquestions.org/questions/ubuntu-63/login-screen-grid-4175581227/
+
+==========================================================================
+
