@@ -1,0 +1,4 @@
+watch -n 2 cat /sys/class/power_supply/BAT1/current_now
+#while sleep 2; do
+  #cat /sys/class/power_supply/BAT1/current_now
+#done

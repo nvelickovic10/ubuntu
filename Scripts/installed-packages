@@ -1,6 +1,0 @@
-#!/bin/bash
-# This script will list all user installed packages to terminal out and in file
-
-cd "$(dirname "$0")"
-
-comm -23 <(aptitude search '~i !~M' -F '%p' | sed "s/ *$//" | sort -u) <(gzip -dc /var/log/installer/initial-status.gz | sed -n 's/^Package: //p' | sort -u) | tee ../Output/installedPackages 
