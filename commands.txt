@@ -57,6 +57,8 @@
 # Disable v-sync environment variable
 	vblank_mode=0
 	
+	DRI_PRIME=1 vblank_mode=0 glxgears
+	
 ==========================================================================
 
 # Sync files between two folders

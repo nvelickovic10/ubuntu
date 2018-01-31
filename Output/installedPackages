@@ -43,8 +43,10 @@ kernel-package
 kernel-wedge
 libaudit-dev
 libc6:i386
+libclang-common-4.0-dev
 libclc-amdgcn
 libdw-dev
+libegl1-mesa-dev
 libelf-dev
 libgtop2-7
 libiberty-dev
