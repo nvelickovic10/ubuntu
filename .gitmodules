@@ -1,0 +1,3 @@
+[submodule "Scripts/spectre-meltdown-checker"]
+	path = Scripts/spectre-meltdown-checker
+	url = https://github.com/speed47/spectre-meltdown-checker
