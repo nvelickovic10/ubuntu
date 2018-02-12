@@ -13,6 +13,10 @@
 # find files fastfast
   locate <filename>
   sudo updatedb --> update database
+  
+# mount box folder (davs://dav.box.com/dav, https://dav.box.com/dav)
+  mount /media/box
+  umount /media/box
 	
 ==========================================================================
 
