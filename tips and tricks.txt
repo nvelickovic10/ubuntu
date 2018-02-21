@@ -2,6 +2,22 @@
 	
 ==========================================================================	
 
+# Here is the binary logic behind it (if you're interested):
+
+# Symbolic:  r-- -w- --x  |  421
+# Binary:    100 010 001  |  -------
+# Decimal:    4   2   1   |  000 = 0
+#                         |  001 = 1
+# Symbolic:  rwx r-x r-x  |  010 = 2
+# Binary:    111 101 101  |  011 = 3
+# Decimal:    7   5   5   |  100 = 4
+#            /   /   /    |  101 = 5
+# Owner  ---/   /   /     |  110 = 6
+# Group  ------/   /      |  111 = 7
+# Others ---------/       |  Binary to Decimal chart
+
+==========================================================================	
+
 # module loading modprobe msr
 	sudo vi /etc/modules-load.d/modules.conf
 

@@ -1,0 +1,50 @@
+This issue still exists in 17.04, with a few differences:
+
+* The snap is called "core" and not "ubuntu-core"
+* sudo snap remove core - returns the same message as above: snap "core" is not removable
+* However, trying to umount "core" fails if snapd.service is running
+
+My fix was to:
+(1) use 'df' to find the mount point of "/snap/core/*"
+(2) stop the snap service
+(3) umount /snap/core/xxxx
+(4) start snap service
+(5) use snap remove core - which then worked
+
+---
+Here's the abbreviated output
+
+$ snap list
+Name Version Rev Developer Notes
+core 16-2.26.14 2462 canonical -
+
+$ df # use output to find the mount point "/snap/core/xxxx"
+
+$ sudo umount /snap/core/2462 # this failed on my system, unlike poster above
+umount: /snap/core/2462: target is busy
+...
+
+$ sudo systemctl stop snapd
+Warning: Stopping snapd.service, but it can still be activated by: snapd.socket
+
+$ sudo umount /snap/core/2462 # umount worked with snapd stopped
+
+$ sudo systemctl start snapd # start snapd again in order to use 'snap remove' command
+
+$ df # verify that starting the snap service didn't remount "core" (it didn't)
+...
+{"/snap/core/xxxx" not listed}
+...
+
+$ sudo snap remove core # success!
+core removed
+
+---
+Verify Removal:
+
+$ sudo snap list
+No snaps are installed yet. Try "snap install hello-world"
+
+$ ls -l /snap/core
+...
+{nothing listed}

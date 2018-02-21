@@ -2,6 +2,4 @@
 
 # installed-packages get rid of cwd
 
-# graphics driver
-  https://www.epicgames.com/unrealtournament/forums/unreal-tournament-discussion/ut-development-bug-reports-qa/linux-troubleshooting/14891-how-to-update-open-source-graphic-driver-in-ubuntu
-  glxinfo | grep padoka
+# Tidy up the commands, tips, snap and ppas description

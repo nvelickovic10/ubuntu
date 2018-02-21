@@ -5,6 +5,8 @@ audacity
 autoconf
 autojump
 automake
+awscli
+backintime-qt4
 binutils-dev
 bison
 caffeine
@@ -13,6 +15,7 @@ copyq
 cups-pdf
 curl
 cycligentgittool
+davfs2
 dconf-tools
 debhelper
 deja-dup-backend-gvfs
@@ -36,6 +39,7 @@ hunspell-en-gb
 hunspell-en-za
 hyphen-en-gb
 indicator-multiload
+indicator-stickynotes
 intltool
 ipscan
 jq
