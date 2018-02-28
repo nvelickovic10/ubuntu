@@ -1,0 +1,11 @@
+[Desktop Entry]
+Encoding=UTF-8
+Version=1.0
+Type=Application
+Name=Flex local - Google Chrome
+Icon=google-chrome
+Exec=/opt/google/chrome/chrome --disable-background-networking --disable-client-side-phishing-detection --disable-default-apps --disable-hang-monitor --disable-popup-blocking --disable-prompt-on-repost --disable-sync --disable-web-resources --enable-automation --enable-logging --force-fieldtrials=SiteIsolationExtensions/Control --ignore-certificate-errors --load-extension=/tmp/.org.chromium.Chromium.tZOLMV/internal --log-level=0 --metrics-recording-only --no-first-run --password-store=basic --remote-debugging-port=12504 --test-type=webdriver --use-mock-keychain --user-data-dir=/tmp/.org.chromium.Chromium.6OZ3a1 data:,
+StartupNotify=false
+StartupWMClass=Google-chrome
+OnlyShowIn=Unity;
+X-UnityGenerated=true
