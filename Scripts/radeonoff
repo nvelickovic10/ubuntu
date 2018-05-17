@@ -1,0 +1,5 @@
+chown username /sys/kernel/debug
+chown username /sys/kernel/debug/vgaswitcheroo/switch
+echo DIS > /sys/kernel/debug/vgaswitcheroo/switch
+echo OFF > /sys/kernel/debug/vgaswitcheroo/switch
+echo OFF > /sys/kernel/debug/vgaswitcheroo/switch

@@ -21,6 +21,12 @@
 # mound gdrive folder (https://github.com/astrada/google-drive-ocamlfuse)
   google-drive-ocamlfuse -label label [mountpoint]
   fusermount -u mountpoint
+  
+# Audio volume mixer
+  alsamixer -Dhw
+  
+# Check hard disk utilization
+  iostat -dx
 	
 ==========================================================================
 
@@ -77,3 +83,11 @@
 	diff -r /media/nvelickovic10/WD_DATA/Slike/ /media/nvelickovic10/662850122EA72360/Slike/
 
 ==========================================================================
+
+# Android virtual device
+
+# List available devices
+  emulator -list-avds
+
+# Start virtual device
+  emulator -avd <name>

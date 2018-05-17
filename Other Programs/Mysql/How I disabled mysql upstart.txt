@@ -1,0 +1,5 @@
+mv /etc/init.d/mysql /etc/init.disabled/
+
+# revert
+mv /etc/init.disabled/mysql /etc/init.d/
+
