@@ -1,2 +1,0 @@
-[ 7730.460697] compiz[21768]: segfault at b1 ip 00007ffb1b8002c5 sp 00007ffd7da9cbd0 error 4 in i965_dri.so[7ffb1b3e0000+917000]
-[ 7747.090671] compiz[24002]: segfault at b0 ip 00007ffa4185d2c5 sp 00007fff25a128e0 error 4 in i965_dri.so[7ffa4143d000+917000]

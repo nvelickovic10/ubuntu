@@ -1,3 +1,6 @@
+# List processes listening on port
+  lsof -i :8280
+
 # List kernel version 
 	uname -r
 	

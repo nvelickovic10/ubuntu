@@ -25,3 +25,16 @@ http://launchpad.net/~webupd8team/+archive/java
 # y-ppa-manager 
 http://launchpad.net/~webupd8team/+archive/y-ppa-manager
 
+# pidgin
+http://ppa.launchpad.net/jonathonf/backports
+
+# For some reason the following are not present in yppa manager
+
+# virtualbox
+http://download.virtualbox.org/virtualbox/debian
+
+# vscode
+http://packages.microsoft.com/repos/vscode
+
+# chrome 
+http://dl.google.com/linux/chrome/deb/
