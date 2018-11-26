@@ -10,8 +10,8 @@
 # https://github.com/wting/autojump
 	j tmflex
 
-# watch command outpun on every 2 seconds
-	watch -n2 [commannd]
+# watch command output on every 2 seconds with difference highlighting
+	watch -n2 -d [commannd]
 	
 # find files fastfast
   locate <filename>

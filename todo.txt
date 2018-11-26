@@ -1,5 +1,0 @@
-# Mail settings
-
-# installed-packages get rid of cwd
-
-# Tidy up the commands, tips, snap and ppas description

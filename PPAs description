@@ -4,6 +4,15 @@ http://launchpad.net/~alessandro-strada/+archive/ppa
 # backintime - backup utility
 http://launchpad.net/~bit-team/+archive/stable
 
+# rhytmbox plugins
+http://ppa.launchpad.net/fossfreedom/rhythmbox-plugins/ubuntu
+
+# unetbootin
+http://ppa.launchpad.net/gezakovacs/ppa/ubuntu
+
+# keepas
+http://ppa.launchpad.net/jtaylor/keepass/ubuntu
+
 # pulseaudio-equalizer
 http://launchpad.net/~nilarimogard/+archive/webupd8
 
@@ -25,16 +34,10 @@ http://launchpad.net/~webupd8team/+archive/java
 # y-ppa-manager 
 http://launchpad.net/~webupd8team/+archive/y-ppa-manager
 
-# pidgin
-http://ppa.launchpad.net/jonathonf/backports
-
 # For some reason the following are not present in yppa manager
-
-# virtualbox
-http://download.virtualbox.org/virtualbox/debian
 
 # vscode
 http://packages.microsoft.com/repos/vscode
 
-# chrome 
-http://dl.google.com/linux/chrome/deb/
+#mongodb
+http://repo.mongodb.org/apt/ubuntu

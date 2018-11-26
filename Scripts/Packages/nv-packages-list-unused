@@ -1,4 +1,4 @@
-#!/bin/bash
+nv-packages-list-unused#!/bin/bash
 
 ################################################
 # UnusedPkg     1.0 - Emilio Pinna             #

@@ -31,6 +31,9 @@
 	sudo ufw status verbose
 
 ==========================================================================
+# List startup services duration
+# systemd-analyze blame
+# systemd-analyze time
 
 # ubuntu optimization
 # https://sites.google.com/site/easylinuxtipsproject/first
