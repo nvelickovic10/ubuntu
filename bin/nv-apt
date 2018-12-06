@@ -1,0 +1,108 @@
+#!/bin/bash
+# This script will clean apt 
+
+SCRIPT_DESC="This script will clean apt"
+commons_dir="/usr/local/bin/common"
+
+# Include common functions
+. ${commons_dir}/common.sh
+
+# Include root functions
+. ${commons_dir}/sudoUtil.sh
+
+SOURCES_DIR="/etc/apt/sources.list.d"
+PRIVATE_SOURCES="tor.list"
+
+function printHelpAndExit {
+    echo "USAGE"
+    echo "  ${SCRIPT_NAME} [--clean | --update | --upgrade | --status | --switch]"
+    echo
+    echo "DESCRIPTION"
+    echo "  ${SCRIPT_DESC}"
+    echo
+    echo "OPTIONS"
+    echo "  --clean,  --rm        : Select clean"
+    echo "  --update, --u         : Select update action"
+    echo "  --upgrade, --U        : Select upgrade action"
+    echo "  --status, --s         : Select status action"
+    echo "  --switch, --S         : Select switch action"
+    echo
+    echo "  --help,   --h         : Show this help (default)"
+    exit 1
+}
+
+function fn_clean {
+    local COMMAND="apt autoremove && apt autoclean && apt clean"
+    logInfo "Running CLEAN command: ${COMMAND}"
+    runAsSudo "apt autoremove" && runAsSudo "apt autoclean" && runAsSudo "apt clean"
+}
+
+function fn_update {
+    local COMMAND="apt update && apt list --upgradable"
+    logInfo "Running UPDATE command: ${COMMAND}"
+    runAsSudo "${COMMAND}"
+}
+
+function fn_upgrade {
+    local COMMAND="apt dist-upgrade"
+    logInfo "Running UPGRADE command: ${COMMAND}"
+    runAsSudo "${COMMAND}"
+}
+
+function fn_status {
+    logInfo "Running STATUS command"
+    for SOURCE in ${PRIVATE_SOURCES} ; do
+        if [ -e "${SOURCES_DIR}/${SOURCE}" ]
+        then
+            logInfo "Source: ${SOURCE} is on work settings"
+        else
+            logInfo "Source: ${SOURCE} is on personal settings"
+        fi
+    done
+}
+
+function fn_switch {
+    logInfo "Running SWITCH command: ${COMMAND}"
+    for SOURCE in ${PRIVATE_SOURCES} ; do
+        if [ -e "${SOURCES_DIR}/${SOURCE}" ]
+        then
+            local COMMAND="mv ${SOURCES_DIR}/${SOURCE} ${SOURCES_DIR}/.${SOURCE}"
+            logInfo "Switching: ${SOURCES_DIR}/${SOURCE} to personal settings"
+        else
+            local COMMAND="mv ${SOURCES_DIR}/.${SOURCE} ${SOURCES_DIR}/${SOURCE}"
+            logInfo "Switching: ${SOURCES_DIR}/${SOURCE} to work settings"
+        fi
+        runAsSudo "${COMMAND}"
+    done
+    fn_status
+}
+
+ACTION="printHelpAndExit"
+# Parsing command line arguments
+for arg; do
+    case "${arg}" in
+        --clean|--rm)
+            ACTION="fn_clean"
+        ;;
+        --update|--u)
+            ACTION="fn_update"
+        ;;
+        --upgrade|--U)
+            ACTION="fn_upgrade"
+        ;;
+        --status|--s)
+            ACTION="fn_status"
+        ;;
+        --switch|--S)
+            ACTION="fn_switch"
+        ;;
+        --help)
+            printHelpAndExit
+        ;;
+    esac
+done
+
+logInfo "ACTION: ${ACTION}"
+eval ${ACTION}
+
+# End

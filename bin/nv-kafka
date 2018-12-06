@@ -1,0 +1,109 @@
+#!/bin/bash
+# This script is used to start kafka server, consumer, producer
+
+SCRIPT_DESC="This script is used to start kafka server, consumer, producer"
+commons_dir="/usr/local/bin/common"
+
+# Include common functions
+. ${commons_dir}/common.sh
+
+# Include root functions
+. ${commons_dir}/sudoUtil.sh
+
+function start_server {
+    logInfo "Starting Kafka server ${COMMAND_START_KAFKA_SERVER}"
+    runAsSudo "${COMMAND_START_KAFKA_SERVER}"
+}
+
+function start_producer {
+    logInfo "Starting Kafka producer ${COMMAND_START_KAFKA_PRODUCER}"
+    eval ${COMMAND_START_KAFKA_PRODUCER}
+}
+
+function start_consumer {
+    logInfo "Starting Kafka consumer ${COMMAND_START_KAFKA_CONSUMER}"
+    eval ${COMMAND_START_KAFKA_CONSUMER}
+}
+
+function list_topics {
+    logInfo "Listing topics ${COMMAND_LIST_TOPICS}"
+    eval ${COMMAND_LIST_TOPICS}
+}
+
+function delete_topic {
+    logInfo "Deleting topic ${COMMAND_DELETE_TOPIC}"
+    eval ${COMMAND_DELETE_TOPIC}
+}
+
+function print_help_and_exit {
+    echo "USAGE"
+    echo "  ${SCRIPT_NAME} [--server | --list] [--producer | --consumer | --delete <topic>]"
+    echo
+    echo "DESCRIPTION"
+    echo "  ${SCRIPT_DESC}"
+    echo
+    echo "OPTIONS"
+    echo "  --server,      -s        : Start Kafka server"
+    echo "  --producer,    -p        : Start Kafka producer"
+    echo "  --consumer,    -c        : Start Kafka consumer"
+    echo "  --list,        -ls       : List all topics"
+    echo "  --delete,      -rm       : Remove topic"
+    echo
+    echo "  --help,        -h        : Show this help"
+    exit 1
+}
+
+ACTION="print_help_and_exit"
+TOPIC="test"
+# Parsing command line arguments
+for arg; do
+    case "${arg}" in
+        --start|-s)
+            ACTION="start_server"
+        ;;
+        --producer|-p)
+            ACTION="start_producer"
+            TOPIC=${2}
+        ;;
+        --consumer|-c)
+            ACTION="start_consumer"
+            TOPIC=${2}
+        ;;
+        --list|-ls)
+            ACTION="list_topics"
+        ;;
+        --delete|-rm)
+            ACTION="delete_topic"
+            TOPIC=${2}
+        ;;
+        --help|-h)
+            print_help_and_exit
+        ;;
+    esac
+done
+
+COMMAND_START_KAFKA_SERVER="/opt/kafka/bin/kafka-server-start.sh /opt/kafka/config/server.properties"
+COMMAND_START_KAFKA_PRODUCER="/opt/kafka/bin/kafka-console-producer.sh --broker-list localhost:9092 --topic ${TOPIC}"
+COMMAND_START_KAFKA_CONSUMER="/opt/kafka/bin/kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic ${TOPIC} --from-beginning"
+COMMAND_LIST_TOPICS="/opt/kafka/bin/kafka-topics.sh --list --zookeeper localhost:2181"
+COMMAND_DELETE_TOPIC="/opt/kafka/bin/kafka-topics.sh --zookeeper localhost:2181 --delete --topic ${TOPIC}"
+
+logInfo "ACTION: ${ACTION}"
+logInfo "TOPIC: ${TOPIC}"
+
+eval ${ACTION}
+
+# # start a kafka server
+# sudo /opt/kafka/bin/kafka-server-start.sh /opt/kafka/config/server.properties
+
+# # start a kafka publisher
+# /opt/kafka/bin/kafka-console-producer.sh --broker-list localhost:9092 --topic test
+
+# # start a kafka subscriber
+# /opt/kafka/bin/kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic test --from-beginning
+
+# # list all topics
+# /opt/kafka/bin/kafka-topics.sh --list --zookeeper localhost:2181
+
+# # delete topic
+# /opt/kafka/bin/kafka-topics.sh --zookeeper localhost:2181 --delete --topic test

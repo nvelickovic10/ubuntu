@@ -1,0 +1,28 @@
+#!/bin/bash
+# This script will download the latest version of Postman and install it
+
+SCRIPT_DESC="This script will download the latest version of Postman and install it"
+commons_dir="/usr/local/bin/common"
+
+# Include common functions
+. ${commons_dir}/common.sh
+
+# Include root functions
+. ${commons_dir}/sudoUtil.sh
+
+runAsSudo "pkill -9 Postman"
+
+rm -r /tmp/Postman*
+wget -O /tmp/Postman.tar.gz https://dl.pstmn.io/download/latest/linux64
+
+runAsSudo "rm -r /opt/Postman.old"
+runAsSudo "mv /opt/Postman /opt/Postman.old"
+
+tar -xzf /tmp/Postman.tar.gz -C /tmp
+
+runAsSudo "mv /tmp/Postman /opt"
+# rm -r /tmp/Postman*
+
+# Postman &
+
+# END

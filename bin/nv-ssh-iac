@@ -1,0 +1,141 @@
+#!/bin/bash
+# This script is used to check connection ant to connect to IAC servers
+
+SCRIPT_DESC="This script is used to check connection ant to connect to IAC servers"
+commons_dir="/usr/local/bin/common"
+
+# Include common functions
+. ${commons_dir}/common.sh
+
+# Include array util
+. ${commons_dir}/arrayUtil.sh
+
+USERNAME="tmweb"
+LEVELS="app1 apc1 ui1 sui1 rep1 amq1 sql1 app2 apc2 ui2 sui2 rep2 amq2 sql2"
+SERVERS="eundev1 eunqa1 eunqa2 eunint1 eunstg1 euncap1 cft1 cft3"
+SCRIPT="pwd; ls"
+
+HAS_ERROR=0
+
+function build_url {
+    local U="${1}"
+    local L="${2}"
+    local S="${3}"
+    local URL="${U}@${L}.iac.${S}.websys.tmcs"
+    echo ${URL}
+}
+
+function test_connection {
+    local URL="${1}"
+    eval "echo exit | ssh -q -o StrictHostKeyChecking=no ${URL} > /dev/null"
+}
+
+function connect {
+    array_contains "${LEVELS}" "${LEVEL}"
+    if [ $? -eq 1 ];
+    then
+        logError "Invalid level: ${LEVEL}"
+        logError "PLEASE USE ANY OF: ${LEVELS}"
+        HAS_ERROR=1
+    fi
+
+    array_contains "${SERVERS}" "${SERVER}"
+    if [ $? -eq 1 ];
+    then
+        logError "Invalid level: ${SERVER}"
+        logError "PLEASE USE ANY OF: ${SERVERS}"
+        HAS_ERROR=1
+    fi
+
+    if [ $HAS_ERROR -eq 1 ]
+    then
+        return 1
+    fi
+
+    local U=$(build_url ${USERNAME} ${LEVEL} ${SERVER})
+
+    logInfo "TRYING: ${U}"
+    test_connection ${U}
+    if [ $? -ne '0' ]; then 
+        logError "ERROR - NO ACCESS: ${U}"
+        HAS_ERROR=1
+        return 1
+    fi 
+
+    logInfo "DONE: SUCCESS ${U}"
+    ssh -q -o StrictHostKeyChecking=no "${U}"
+}
+
+function test_all_connections {
+    for LEVEL in ${LEVELS} ; do
+        for SERVER in ${SERVERS} ; do
+            URL=$(build_url ${USERNAME} ${LEVEL} ${SERVER})
+            logInfo "TRYING: ${URL}"
+            test_connection ${URL}
+            if [ $? -ne '0' ]; then 
+                logError "ERROR - NO ACCESS: ${URL}"
+                HAS_ERROR=1
+            fi 
+            logInfo "DONE: SUCCESS"
+        done
+        logInfo "FINISHED: ${LEVEL}"
+    done
+    logInfo "FINISHED ALL WITH SUCCESS"
+}
+
+function list_all_levels_and_servers {
+    logInfo "LISTING ALL LEVELS AND SERVERS"
+
+    logInfo "USERNAME: ${USERNAME}"
+    logInfo "LEVELS: ${LEVELS}"
+    logInfo "SERVERS: ${SERVERS}"
+}
+
+function print_help_and_exit {
+    echo "USAGE"
+    echo "  ${SCRIPT_NAME} [--connect <level> <server> | --test | --help]"
+    echo
+    echo "DESCRIPTION"
+    echo "  ${SCRIPT_DESC}"
+    echo
+    echo "OPTIONS"
+    echo "  --connect, -c        : Connect to given level and server"
+    echo "  --test,    -t        : Test connection to all servers"
+    echo "  --list,    -ls       : List all levels and servers"
+    echo
+    echo "  --help,    -h        : Show this help"
+    exit 1
+}
+
+ACTION="print_help_and_exit"
+# Parsing command line arguments
+for arg; do
+    case "${arg}" in
+        --connect|-c)
+            ACTION="connect"
+            LEVEL="$2"
+            SERVER="$3"
+        ;;
+        --test|-t)
+            ACTION="test_all_connections"
+        ;;
+        --list|-ls)
+            ACTION="list_all_levels_and_servers"
+        ;;
+        --help|-h)
+            print_help_and_exit
+        ;;
+    esac
+done
+
+COMMAND="${ACTION}"
+
+eval ${COMMAND}
+
+if [ $HAS_ERROR -eq 1 ]
+then
+    logError "Script exiting with error"
+    exit 1
+fi
+
+#END
