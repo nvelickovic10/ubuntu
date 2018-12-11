@@ -15,12 +15,13 @@ PRIVATE_SOURCES="tor.list"
 
 function printHelpAndExit {
     echo "USAGE"
-    echo "  ${SCRIPT_NAME} [--clean | --update | --upgrade | --status | --switch]"
+    echo "  ${SCRIPT_NAME} [--all | --clean | --update | --upgrade | --status | --switch]"
     echo
     echo "DESCRIPTION"
     echo "  ${SCRIPT_DESC}"
     echo
     echo "OPTIONS"
+    echo "  --all, --a            : Select update && upgrade && clean (default)"
     echo "  --clean,  --rm        : Select clean"
     echo "  --update, --u         : Select update action"
     echo "  --upgrade, --U        : Select upgrade action"
@@ -31,10 +32,16 @@ function printHelpAndExit {
     exit 1
 }
 
+function fn_all {
+    local COMMAND="yes | fn_update && yes | fn_upgrade && yes | fn_clean"
+    logInfo "Running UPGRADE command: ${COMMAND}"
+    eval ${COMMAND}
+}
+
 function fn_clean {
     local COMMAND="apt autoremove && apt autoclean && apt clean"
     logInfo "Running CLEAN command: ${COMMAND}"
-    runAsSudo "apt autoremove" && runAsSudo "apt autoclean" && runAsSudo "apt clean"
+    runAsSudo "apt autoremove && apt autoclean && apt clean"
 }
 
 function fn_update {
@@ -77,10 +84,13 @@ function fn_switch {
     fn_status
 }
 
-ACTION="printHelpAndExit"
+ACTION="fn_all"
 # Parsing command line arguments
 for arg; do
     case "${arg}" in
+        --all|--a)
+            ACTION="fn_all"
+        ;;
         --clean|--rm)
             ACTION="fn_clean"
         ;;

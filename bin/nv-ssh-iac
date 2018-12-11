@@ -11,9 +11,10 @@ commons_dir="/usr/local/bin/common"
 . ${commons_dir}/arrayUtil.sh
 
 USERNAME="tmweb"
-LEVELS="app1 apc1 ui1 sui1 rep1 amq1 sql1 app2 apc2 ui2 sui2 rep2 amq2 sql2"
+LEVELS="app1 app2 apc1 apc2 ui1 ui2 sui1 sui2 rep1 rep2 amq1 amq2 sql1 sql2"
 SERVERS="eundev1 eunqa1 eunqa2 eunint1 eunstg1 euncap1 cft1 cft3"
 SCRIPT="pwd; ls"
+SSHCOMMAND="ssh -q -o StrictHostKeyChecking=no -o ConnectTimeout=10 -o PasswordAuthentication=no"
 
 HAS_ERROR=0
 
@@ -27,7 +28,7 @@ function build_url {
 
 function test_connection {
     local URL="${1}"
-    eval "echo exit | ssh -q -o StrictHostKeyChecking=no ${URL} > /dev/null"
+    eval "${SSHCOMMAND} ${URL} 1>/dev/null exit"
 }
 
 function connect {
@@ -63,24 +64,29 @@ function connect {
     fi 
 
     logInfo "DONE: SUCCESS ${U}"
-    ssh -q -o StrictHostKeyChecking=no "${U}"
+    eval "${SSHCOMMAND} ${U}"
 }
 
 function test_all_connections {
-    for LEVEL in ${LEVELS} ; do
-        for SERVER in ${SERVERS} ; do
+    local ERRORED="FAILS:"
+    for SERVER in ${SERVERS} ; do
+        for LEVEL in ${LEVELS} ; do
             URL=$(build_url ${USERNAME} ${LEVEL} ${SERVER})
             logInfo "TRYING: ${URL}"
             test_connection ${URL}
-            if [ $? -ne '0' ]; then 
-                logError "ERROR - NO ACCESS: ${URL}"
+            local LECODE=$?
+            if [ ${LECODE} -ne '0' ]; then 
+                logError "ERROR ${LECODE} - NO ACCESS: ${URL}"
                 HAS_ERROR=1
+                ERRORED="${ERRORED} (${LEVEL}, ${SERVER})"
+            else
+                logInfo "DONE: SUCCESS"
             fi 
-            logInfo "DONE: SUCCESS"
         done
-        logInfo "FINISHED: ${LEVEL}"
+        logInfo "FINISHED: ${SERVER}"
+        echo
     done
-    logInfo "FINISHED ALL WITH SUCCESS"
+    logError "${ERRORED}"
 }
 
 function list_all_levels_and_servers {
@@ -137,5 +143,6 @@ then
     logError "Script exiting with error"
     exit 1
 fi
+logInfo "Finished all success"
 
 #END

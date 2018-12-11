@@ -12,8 +12,8 @@ function checkSudoPrivileges {
 }
 
 function runAsSudo {
+    logInfo "run as sudo: ${1}" > /dev/stderr
     local COMMAND="sudo bash -c '${1}'"
-    logInfo "run as sudo: ${COMMAND}" > /dev/stderr
     [ "$UID" -eq 0 ] || eval "$COMMAND"
     echo > /dev/stderr
 }

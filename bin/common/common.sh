@@ -20,6 +20,10 @@ function logError {
     echo -e ">>> ERROR: $1"
 }
 
+function logDebug {
+    echo -e ">>> >>> DEBUG: $1"
+}
+
 function isRebootRequired {
     if [ -f /var/run/reboot-required ]; then
         logInfo 'Reboot required'
