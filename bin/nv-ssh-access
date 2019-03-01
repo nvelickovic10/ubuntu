@@ -10,8 +10,11 @@ commons_dir="/usr/local/bin/common"
 # Include array util
 . ${commons_dir}/arrayUtil.sh
 
+# Include root functions
+. ${commons_dir}/sudoUtil.sh
+
 USERNAME="tmweb"
-LEVELS="app1 app2 apc1 apc2 ui1 ui2 sui1 sui2 rep1 rep2 amq1 amq2 sql1 sql2"
+LEVELS="app1 app2 apc1 apc2 ui1 ui2 sui1 sui2 rep1 rep2 amq1 amq2 sql1 sql2 tls1 tls2"
 SERVERS="eundev1 eunqa1 eunqa2 eunint1 eunstg1 euncap1 cft1 cft3"
 SCRIPT="pwd; ls"
 SSHCOMMAND="ssh -q -o StrictHostKeyChecking=no -o ConnectTimeout=10 -o PasswordAuthentication=no"
@@ -19,11 +22,18 @@ SSHCOMMAND="ssh -q -o StrictHostKeyChecking=no -o ConnectTimeout=10 -o PasswordA
 HAS_ERROR=0
 
 function build_url {
-    local U="${1}"
-    local L="${2}"
-    local S="${3}"
-    local URL="${U}@${L}.iac.${S}.websys.tmcs"
-    echo ${URL}
+    echo "${1}.iac.${2}.websys.tmcs"
+}
+
+function build_url_with_user {
+    echo "${1}@$(build_url ${2} ${3})"
+}
+
+function create_tunnel {
+    local U=$(build_url_with_user ${USERNAME} ${LEVEL} ${SERVER})
+    local U2=$(build_url ${LEVEL} ${SERVER})
+    local SSHTUNNELCOMMAND="ssh -i /home/nvelickovic10/.ssh/id_rsa ${U} -L 3307:${U2}:3306 -N"
+    runAsSudo "${SSHTUNNELCOMMAND}"
 }
 
 function test_connection {
@@ -53,7 +63,7 @@ function connect {
         return 1
     fi
 
-    local U=$(build_url ${USERNAME} ${LEVEL} ${SERVER})
+    local U=$(build_url_with_user ${USERNAME} ${LEVEL} ${SERVER})
 
     logInfo "TRYING: ${U}"
     test_connection ${U}
@@ -71,7 +81,7 @@ function test_all_connections {
     local ERRORED="FAILS:"
     for SERVER in ${SERVERS} ; do
         for LEVEL in ${LEVELS} ; do
-            URL=$(build_url ${USERNAME} ${LEVEL} ${SERVER})
+            URL=$(build_url_with_user ${USERNAME} ${LEVEL} ${SERVER})
             logInfo "TRYING: ${URL}"
             test_connection ${URL}
             local LECODE=$?
@@ -90,6 +100,14 @@ function test_all_connections {
 }
 
 function list_all_levels_and_servers {
+    for SERVER in ${SERVERS} ; do
+        for LEVEL in ${LEVELS} ; do
+            URL=$(build_url_with_user ${USERNAME} ${LEVEL} ${SERVER})
+            logInfo "${URL}"
+        done
+        echo
+    done
+
     logInfo "LISTING ALL LEVELS AND SERVERS"
 
     logInfo "USERNAME: ${USERNAME}"
@@ -99,7 +117,7 @@ function list_all_levels_and_servers {
 
 function print_help_and_exit {
     echo "USAGE"
-    echo "  ${SCRIPT_NAME} [--connect <level> <server> | --test | --help]"
+    echo "  ${SCRIPT_NAME} [--connect <level> <server> | --test | --help | --tunnel (sql1 | sql2) <server>]"
     echo
     echo "DESCRIPTION"
     echo "  ${SCRIPT_DESC}"
@@ -108,6 +126,7 @@ function print_help_and_exit {
     echo "  --connect, -c        : Connect to given level and server"
     echo "  --test,    -t        : Test connection to all servers"
     echo "  --list,    -ls       : List all levels and servers"
+    echo "  --tunnel,  -tn       : Open ssh tunnel"
     echo
     echo "  --help,    -h        : Show this help"
     exit 1
@@ -127,6 +146,11 @@ for arg; do
         ;;
         --list|-ls)
             ACTION="list_all_levels_and_servers"
+        ;;
+        --tunnel|-tn)
+            ACTION="create_tunnel"
+            LEVEL="$2"
+            SERVER="$3"
         ;;
         --help|-h)
             print_help_and_exit
