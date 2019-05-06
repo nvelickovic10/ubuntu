@@ -1,5 +1,5 @@
 #!/bin/bash
-# This script is used to check connection ant to connect to IAC servers
+# This script is used to check connection and to connect to IAC servers
 
 SCRIPT_DESC="This script is used to check connection ant to connect to IAC servers"
 commons_dir="/usr/local/bin/common"
