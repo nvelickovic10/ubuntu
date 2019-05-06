@@ -33,7 +33,7 @@ function create_tunnel {
     local U=$(build_url_with_user ${USERNAME} ${LEVEL} ${SERVER})
     local U2=$(build_url ${LEVEL} ${SERVER})
     local SSHTUNNELCOMMAND="ssh -i /home/nvelickovic10/.ssh/id_rsa ${U} -L 3307:${U2}:3306 -N"
-    runAsSudo "${SSHTUNNELCOMMAND}"
+    eval "${SSHTUNNELCOMMAND}"
 }
 
 function test_connection {
