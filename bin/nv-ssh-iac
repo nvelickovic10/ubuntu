@@ -10,50 +10,27 @@ commons_dir="/usr/local/bin/common"
 # Include array util
 . ${commons_dir}/arrayUtil.sh
 
-# Include root functions
-. ${commons_dir}/sudoUtil.sh
-
 USERNAME="tmweb"
 LEVELS="app1 app2 apc1 apc2 ui1 ui2 sui1 sui2 rep1 rep2 amq1 amq2 sql1 sql2 tls1 tls2"
 SERVERS="eundev1 eunqa1 eunqa2 eunint1 eunstg1 euncap1 cft1 cft3"
-SCRIPT="pwd; ls"
 SSHCOMMAND="ssh -q -o StrictHostKeyChecking=no -o ConnectTimeout=10 -o PasswordAuthentication=no"
 
 HAS_ERROR=0
 
 function build_url {
-    echo "${1}.iac.${2}.websys.tmcs"
-}
-
-function build_url_with_user {
-    echo "${1}@$(build_url ${2} ${3})"
-}
-
-function create_tunnel {
-    local U=$(build_url_with_user ${USERNAME} ${LEVEL} ${SERVER})
-    local U2=$(build_url ${LEVEL} ${SERVER})
-    local SSHTUNNELCOMMAND="ssh -i /home/nvelickovic10/.ssh/id_rsa ${U} -L 3307:${U2}:3306 -N"
-    eval "${SSHTUNNELCOMMAND}"
-}
-
-function test_connection {
-    local URL="${1}"
-    eval "${SSHCOMMAND} ${URL} 1>/dev/null exit"
-}
-
-function connect {
-    array_contains "${LEVELS}" "${LEVEL}"
+    HAS_ERROR=0
+    array_contains "${LEVELS}" "${1}"
     if [ $? -eq 1 ];
     then
-        logError "Invalid level: ${LEVEL}"
+        logError "Invalid level: ${1}"
         logError "PLEASE USE ANY OF: ${LEVELS}"
         HAS_ERROR=1
     fi
 
-    array_contains "${SERVERS}" "${SERVER}"
+    array_contains "${SERVERS}" "${2}"
     if [ $? -eq 1 ];
     then
-        logError "Invalid level: ${SERVER}"
+        logError "Invalid level: ${2}"
         logError "PLEASE USE ANY OF: ${SERVERS}"
         HAS_ERROR=1
     fi
@@ -63,18 +40,46 @@ function connect {
         return 1
     fi
 
-    local U=$(build_url_with_user ${USERNAME} ${LEVEL} ${SERVER})
+    echo "${1}.iac.${2}.websys.tmcs"
+}
 
-    logInfo "TRYING: ${U}"
+function build_url_with_user {
+    echo "${1}@$(build_url ${2} ${3})"
+}
+
+function create_tunnel {
+    local U=$(build_url_with_user ${USERNAME} ${LEVEL} ${SERVER})
     test_connection ${U}
+    
+    if [ $? -ne '0' ]; then 
+        logError "ERROR - NO ACCESS: ${U}"
+        HAS_ERROR=1
+        return 1
+    fi
+    
+    local U2=$(build_url ${LEVEL} ${SERVER})
+    local SSHTUNNELCOMMAND="ssh -i /home/nvelickovic10/.ssh/id_rsa ${U} -L 3307:${U2}:3306 -N"
+    logInfo "RUNNING: ${SSHTUNNELCOMMAND}"
+    eval "${SSHTUNNELCOMMAND}"
+}
+
+function test_connection {
+    logInfo "TRYING: ${1}"
+    eval "${SSHCOMMAND} ${1} 1>/dev/null exit"
+}
+
+function connect {
+    local U=$(build_url_with_user ${USERNAME} ${LEVEL} ${SERVER})
+    test_connection ${U}
+    
     if [ $? -ne '0' ]; then 
         logError "ERROR - NO ACCESS: ${U}"
         HAS_ERROR=1
         return 1
     fi 
 
-    logInfo "DONE: SUCCESS ${U}"
-    eval "${SSHCOMMAND} ${U}"
+    logInfo "DONE: SUCCESS ${U} ${SCRIPT}"
+    eval "${SSHCOMMAND} ${U} ${SCRIPT}"
 }
 
 function test_all_connections {
@@ -82,7 +87,6 @@ function test_all_connections {
     for SERVER in ${SERVERS} ; do
         for LEVEL in ${LEVELS} ; do
             URL=$(build_url_with_user ${USERNAME} ${LEVEL} ${SERVER})
-            logInfo "TRYING: ${URL}"
             test_connection ${URL}
             local LECODE=$?
             if [ ${LECODE} -ne '0' ]; then 
@@ -117,7 +121,7 @@ function list_all_levels_and_servers {
 
 function print_help_and_exit {
     echo "USAGE"
-    echo "  ${SCRIPT_NAME} [--connect <level> <server> | --test | --help | --tunnel (sql1 | sql2) <server>]"
+    echo "  ${SCRIPT_NAME} [--connect <level> <server> <script> | --test | --help | --tunnel (sql1 | sql2) <server>]"
     echo
     echo "DESCRIPTION"
     echo "  ${SCRIPT_DESC}"
@@ -138,8 +142,12 @@ for arg; do
     case "${arg}" in
         --connect|-c)
             ACTION="connect"
-            LEVEL="$2"
-            SERVER="$3"
+            shift
+            LEVEL="$1"
+            shift
+            SERVER="$1"
+            shift
+            SCRIPT="$1"
         ;;
         --test|-t)
             ACTION="test_all_connections"
@@ -149,8 +157,10 @@ for arg; do
         ;;
         --tunnel|-tn)
             ACTION="create_tunnel"
-            LEVEL="$2"
-            SERVER="$3"
+            shift
+            LEVEL="$1"
+            shift
+            SERVER="$1"
         ;;
         --help|-h)
             print_help_and_exit

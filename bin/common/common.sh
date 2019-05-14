@@ -8,7 +8,7 @@ function cleanup {
   local RUNTIME=$(($(date +%s)-SCRIPT_START_TIMESTAMP))
   echo
   isRebootRequired
-  logInfo "FINISHED ${SCRIPT_NAME} $(date +%Y-%m-%d-%H-%M-%S), RUNTIME: ${RUNTIME}"
+  logInfo "FINISHED ${SCRIPT_NAME} $(date +%Y-%m-%d-%H-%M-%S), RUNTIME: ${RUNTIME} seconds"
 }
 trap cleanup EXIT
 
