@@ -3,6 +3,10 @@
 
 # List kernel version 
 	uname -r
+
+# List OS name
+   cat /etc/*-release
+   lsb_release -a
 	
 # battery current stat
 	cat /sys/class/power_supply/BAT1/current_now

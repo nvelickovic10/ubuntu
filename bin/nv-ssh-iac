@@ -11,7 +11,7 @@ commons_dir="/usr/local/bin/common"
 . ${commons_dir}/arrayUtil.sh
 
 USERNAME="tmweb"
-LEVELS="app1 app2 apc1 apc2 ui1 ui2 sui1 sui2 rep1 rep2 amq1 amq2 sql1 sql2 tls1 tls2"
+LEVELS="app1 app2 apc1 apc2 ui1 ui2 sui1 sui2 rep1 rep2 amq1 amq2 sql1 sql2 tls1 pxy1 pxy2"
 SERVERS="eundev1 eunqa1 eunqa2 eunint1 eunstg1 euncap1 cft1 cft3"
 SSHCOMMAND="ssh -q -o StrictHostKeyChecking=no -o ConnectTimeout=10 -o PasswordAuthentication=no"
 
