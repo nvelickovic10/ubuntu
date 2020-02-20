@@ -1,0 +1,130 @@
+# NVIDIA
+# open tty2
+sudo add-apt-repository ppa:graphics-drivers
+sudo apt install nvidia-driver-430
+
+# general
+sudo apt install preload git htop curl net-tools gparted xclip autojump mc nodejs guake maven ffmpeg keepassxc caffeine
+sudo apt install exfat-fuse exfat-utils
+wget https://release.gitkraken.com/linux/gitkraken-amd64.deb
+sudo dpkg -i gitkraken-amd64.deb
+
+# code
+wget -q https://packages.microsoft.com/keys/microsoft.asc -O- | sudo apt-key add -
+sudo add-apt-repository "deb [arch=amd64] https://packages.microsoft.com/repos/vscode stable main"
+sudo apt update
+sudo apt install code
+
+# copyq
+sudo add-apt-repository ppa:hluk/copyq
+sudo apt update
+sudo apt install copyq xclip
+
+# NVM
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.2/install.sh | bash
+n=$(which node); \
+n=${n%/bin/node}; \
+chmod -R 755 $n/bin/*; \
+sudo cp -r $n/{bin,lib,share} /usr/local
+
+# vb
+sudo apt install dnsmasq resolvconf openvpn
+
+# kvm
+sudo apt purge qemu-kvm libvirt-bin ubuntu-vm-builder bridge-utils qemu-kvm libvirt-daemon-system libvirt-clients bridge-utils kvm libvirt-bin ubuntu-vm-builder bridge-utils
+sudo apt install cpu-checker
+kvm-ok
+sudo apt install qemu-kvm libvirt-bin ubuntu-vm-builder bridge-utils
+
+# docker
+sudo apt install apt-transport-https ca-certificates curl software-properties-common
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu  $(lsb_release -cs)  stable" 
+sudo apt update
+apt-cache madison docker-ce
+sudo apt install docker-ce=5:18.09.3~3-0~ubuntu-bionic
+
+# java
+sudo apt install openjdk-11-jdk
+
+# OTHER
+
+# ifconfig
+enp3s0: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  mtu 1500
+        inet 192.168.0.33  netmask 255.255.255.0  broadcast 192.168.0.255
+        inet6 fe80::f6b5:20ff:fe1f:aecb  prefixlen 64  scopeid 0x20<link>
+        ether f4:b5:20:1f:ae:cb  txqueuelen 1000  (Ethernet)
+        RX packets 301384  bytes 432992745 (432.9 MB)
+        RX errors 0  dropped 0  overruns 0  frame 0
+        TX packets 160828  bytes 11936009 (11.9 MB)
+        TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
+
+lo: flags=73<UP,LOOPBACK,RUNNING>  mtu 65536
+        inet 127.0.0.1  netmask 255.0.0.0
+        inet6 ::1  prefixlen 128  scopeid 0x10<host>
+        loop  txqueuelen 1000  (Local Loopback)
+        RX packets 3603063  bytes 298251699 (298.2 MB)
+        RX errors 0  dropped 0  overruns 0  frame 0
+        TX packets 3603063  bytes 298251699 (298.2 MB)
+        TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
+
+wlxe8de2720d0ab: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  mtu 1500
+        inet 192.168.0.36  netmask 255.255.255.0  broadcast 192.168.0.255
+        inet6 fe80::eade:27ff:fe20:d0ab  prefixlen 64  scopeid 0x20<link>
+        ether e8:de:27:20:d0:ab  txqueuelen 1000  (Ethernet)
+        RX packets 473  bytes 112700 (112.7 KB)
+        RX errors 0  dropped 95  overruns 0  frame 0
+        TX packets 95  bytes 18992 (18.9 KB)
+        TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
+
+
+# ifconfig after docker
+docker0: flags=4099<UP,BROADCAST,MULTICAST>  mtu 1500
+        inet 172.17.0.1  netmask 255.255.0.0  broadcast 172.17.255.255
+        ether 02:42:c3:1e:ea:8f  txqueuelen 0  (Ethernet)
+        RX packets 0  bytes 0 (0.0 B)
+        RX errors 0  dropped 0  overruns 0  frame 0
+        TX packets 0  bytes 0 (0.0 B)
+        TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
+
+enp3s0: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  mtu 1500
+        inet 192.168.0.33  netmask 255.255.255.0  broadcast 192.168.0.255
+        inet6 fe80::6bc8:e27e:cd19:dee1  prefixlen 64  scopeid 0x20<link>
+        ether f4:b5:20:1f:ae:cb  txqueuelen 1000  (Ethernet)
+        RX packets 164132  bytes 235919909 (235.9 MB)
+        RX errors 0  dropped 0  overruns 0  frame 0
+        TX packets 85689  bytes 6111229 (6.1 MB)
+        TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
+
+lo: flags=73<UP,LOOPBACK,RUNNING>  mtu 65536
+        inet 127.0.0.1  netmask 255.0.0.0
+        inet6 ::1  prefixlen 128  scopeid 0x10<host>
+        loop  txqueuelen 1000  (Local Loopback)
+        RX packets 1794  bytes 159383 (159.3 KB)
+        RX errors 0  dropped 0  overruns 0  frame 0
+        TX packets 1794  bytes 159383 (159.3 KB)
+        TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
+
+virbr0: flags=4099<UP,BROADCAST,MULTICAST>  mtu 1500
+        inet 192.168.122.1  netmask 255.255.255.0  broadcast 192.168.122.255
+        ether 52:54:00:cd:ee:dd  txqueuelen 1000  (Ethernet)
+        RX packets 0  bytes 0 (0.0 B)
+        RX errors 0  dropped 0  overruns 0  frame 0
+        TX packets 0  bytes 0 (0.0 B)
+        TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
+
+{
+    "repos": {
+        "java-core": {
+            "branch": "kafka_and_protobuf_depre"
+        },
+        "api-gateway": {
+            "branch": "kafka_and_protobuf_depre"
+        },
+        "periodic-tasks": {
+            "branch": "kafka_and_protobuf_depre"
+        }
+    }
+}
+
+

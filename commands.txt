@@ -1,100 +1,33 @@
-# List processes listening on port
-  lsof -i :8280
+virsh list
 
-# List kernel version 
-	uname -r
+sudo netstat -plant | grep :80
 
-# List OS name
-   cat /etc/*-release
-   lsb_release -a
-	
-# battery current stat
-	cat /sys/class/power_supply/BAT1/current_now
-	
-# https://github.com/wting/autojump
-	j tmflex
+vb deploy --bolts openvpn,nginx,logdb,datadb
 
-# watch command output on every 2 seconds with difference highlighting
-	watch -n2 -d [commannd]
-	
-# find files fastfast
-  locate <filename>
-  sudo updatedb --> update database
-  
-# mount box folder (davs://dav.box.com/dav, https://dav.box.com/dav)
-  mount /media/box
-  umount /media/box
-  
-# mound gdrive folder (https://github.com/astrada/google-drive-ocamlfuse)
-  google-drive-ocamlfuse -label label [mountpoint]
-  fusermount -u mountpoint
-  
-# Audio volume mixer
-  alsamixer -Dhw
-  
-# Check hard disk utilization
-  iostat -dx
-	
-==========================================================================
+vb deploy --bolts public-http-ingress,protected-ingress,env-ingress,upload-ingress,public-ingress
 
-# Memory
-# Virtual memory accounts for all the libraries and executable objects that are mapped into your process, as well as your stack space.
-#
-# Resident memory is the amount of memory that is actually in RAM.
-#
-# Writable memory is the amount of address space that your process has allocated with write privileges.
-#
-# Shared memory is memory that may be simultaneously accessed by multiple programs with an intent to provide communication among them or avoid redundant copies.
-# 
-# X server memory is the amount used by the X server for the GUI-session.
-	free
+vb restore-db
 
-==========================================================================
+vb deploy --bolts helm-init,prometheus-common,prometheus,kubernetes-dashboard,log-uploader,video-streamer,sgbounce,streaming,admin,analytics-calc,cacher,api-gateway
 
-# Prevent package from updating
-  sudo apt-mark hold/unhold <package-name>
+vb deploy --bolts update-render-status,update-finance-totals,replenish-subscriptions,expire-subscriptions,update-palettes,author-payouts,update-render-time,send-emails
 
-# List user installed packages from apt-get
-	comm -23 <(aptitude search '~i !~M' -F '%p' | sed "s/ *$//" | sort -u) <(gzip -dc /var/log/installer/initial-status.gz | sed -n 's/^Package: //p' | sort -u)
 
-# system and dpkg cleanup
-# https://raymii.org/s/tutorials/Debian-apt-get-dpkg-packages-cleanup-commands.html
+##### STAGE 20.02.2020.
+vb delete-k8s --env stage --force
 
-# purge packages from ppa repo
-# https://www.tecmint.com/add-remove-purge-ppa-in-ubuntu/
+vb start-k8s --env stage --force
 
-# List obsolete packages (no longer can be downloaded from ppa repository)
-  aptitude search ~o
+vb deploy --bolts openvpn,logdb,datadb,nginx,helm-init --env stage --force
 
-# List packages sorted by priority
-# https://askubuntu.com/questions/79665/keep-only-essential-packages
-	 dpkg-query -Wf '${Package;-40}${Priority}\n' | sort -b -k2,2 -k1,1
+vb deploy --bolts public-http-ingress,protected-ingress,env-ingress,upload-ingress,public-ingress --env stage --force
 
-==========================================================================
+vb restore-db --env stage --force
 
-# Run chrome with dedicatred graphics
-	DRI_PRIME=1 google-chrome
+vb deploy --bolts prometheus-common,prometheus,kubernetes-dashboard,log-uploader,video-streamer --env stage --force
 
-# Disable v-sync environment variable
-	vblank_mode=0
-	
-	DRI_PRIME=1 vblank_mode=0 glxgears
-	
-==========================================================================
+vb deploy --bolts sgbounce,streaming,admin,analytics-calc,cacher,api-gateway --env stage --force
 
-# Sync files between two folders
-# -n Dry run
-	rsync -av --delete /media/nvelickovic10/WD_DATA/Slike/ /media/nvelickovic10/662850122EA72360/Slike/
+vb deploy --bolts site --env stage --force
 
-# list differences between 2 directories
-	diff -r /media/nvelickovic10/WD_DATA/Slike/ /media/nvelickovic10/662850122EA72360/Slike/
-
-==========================================================================
-
-# Android virtual device
-
-# List available devices
-  emulator -list-avds
-
-# Start virtual device
-  emulator -avd <name>
+vb deploy --bolts update-render-status,update-finance-totals,replenish-subscriptions,expire-subscriptions,update-palettes,author-payouts,update-render-time,send-emails --env stage --force
