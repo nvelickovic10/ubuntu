@@ -71,22 +71,4 @@
 	gnome-desktop-item-edit --create-new ~/Desktop
 	https://askubuntu.com/questions/854373/how-to-create-a-desktop-shortcut
 
-# works only until the drive is unpluged
-# To hide the drive icon from launcher, change the following setting in dconf editor:
-# you can find the UUID by running sudo blkid -o list
-	com.canonical.Unity.Devices.blacklist - add the UUID-Label pair
-
-# Change background color of boot splash https://askubuntu.com/questions/20829/how-can-i-change-the-purple-background-color-of-ubuntu-plymouth-boot-screen
-	sudo gedit /usr/share/plymouth/themes/ubuntu-logo/ubuntu-logo.script
-		Window.SetBackgroundTopColor (0.0, 0.00, 0.0);     # Nice colour on top of the screen fading to
-		Window.SetBackgroundBottomColor (0.0, 0.00, 0.0);  # an equally nice colour on the bottom
-	sudo update-initramfs -u
-	
-	sudo gedit /usr/share/plymouth/themes/ubuntu-logo/ubuntu-logo.grub
-	sudo update-grub
-	
-# Change background color of login screen
-  https://www.linuxquestions.org/questions/ubuntu-63/login-screen-grid-4175581227/
-
-==========================================================================
 

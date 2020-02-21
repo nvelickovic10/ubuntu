@@ -69,16 +69,6 @@
 # List packages sorted by priority
 # https://askubuntu.com/questions/79665/keep-only-essential-packages
 	 dpkg-query -Wf '${Package;-40}${Priority}\n' | sort -b -k2,2 -k1,1
-
-==========================================================================
-
-# Run chrome with dedicatred graphics
-	DRI_PRIME=1 google-chrome
-
-# Disable v-sync environment variable
-	vblank_mode=0
-	
-	DRI_PRIME=1 vblank_mode=0 glxgears
 	
 ==========================================================================
 
@@ -90,11 +80,3 @@
 	diff -r /media/nvelickovic10/WD_DATA/Slike/ /media/nvelickovic10/662850122EA72360/Slike/
 
 ==========================================================================
-
-# Android virtual device
-
-# List available devices
-  emulator -list-avds
-
-# Start virtual device
-  emulator -avd <name>

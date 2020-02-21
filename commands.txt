@@ -1,5 +1,7 @@
 virsh list
 
+kubectl --kubeconfig=Documents/videobolt/bin/stage/kubeconfig get pods
+
 sudo netstat -plant | grep :80
 
 vb deploy --bolts openvpn,nginx,logdb,datadb
@@ -18,16 +20,19 @@ vb delete-k8s --env stage --force
 
 vb start-k8s --env stage --force
 
-vb deploy --bolts openvpn,logdb,datadb,nginx,helm-init --env stage --force
+vb deploy --bolts logdb,datadb --env stage --force
+
+vb deploy --bolts openvpn,nginx,helm-init --env stage --force
 
 vb deploy --bolts public-http-ingress,protected-ingress,env-ingress,upload-ingress,public-ingress --env stage --force
 
-vb restore-db --env stage --force
+sudo vb restore-db --env stage --force
 
 vb deploy --bolts prometheus-common,prometheus,kubernetes-dashboard,log-uploader,video-streamer --env stage --force
 
-vb deploy --bolts sgbounce,streaming,admin,analytics-calc,cacher,api-gateway --env stage --force
+vb deploy --bolts sgbounce,streaming,admin,cacher,api-gateway --env stage --force
 
-vb deploy --bolts site --env stage --force
+vb deploy --bolts site,render --env stage --force
 
 vb deploy --bolts update-render-status,update-finance-totals,replenish-subscriptions,expire-subscriptions,update-palettes,author-payouts,update-render-time,send-emails --env stage --force
+
