@@ -51,6 +51,10 @@
 
 ==========================================================================
 
+# delete apt key
+sudo apt-key list
+sudo apt-key del "7B0F AB3A 13B9 0743 5925  D9C9 5442 2A4B 98AB 5139"
+
 # Prevent package from updating
   sudo apt-mark hold/unhold <package-name>
 
