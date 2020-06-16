@@ -24,6 +24,12 @@ function logDebug {
     echo -e ">>> >>> DEBUG: $1"
 }
 
+function setWorkingDirToScriptDir {
+    logInfo "Setting working dir to script dir \n"
+    cd "$(dirname "$0")"
+    cd "$(pwd -P)"
+}
+
 function isRebootRequired {
     if [ -f /var/run/reboot-required ]; then
         logInfo 'Reboot required'

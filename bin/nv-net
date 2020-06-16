@@ -1,0 +1,29 @@
+#!/bin/bash
+# This script will fix internet
+
+SCRIPT_DESC="This script will fix internet"
+commons_dir="/usr/local/bin/common"
+
+# Include common functions
+. ${commons_dir}/common.sh
+
+# Include root functions
+. ${commons_dir}/sudoUtil.sh
+
+# modprobe 8188eu 2 > /dev/null
+
+# if [ $? -eq 0 ]
+# then
+#     logInfo "wifi already running, try 'sudo rmmod 8188eu' and run script again"
+# else
+    runAsSudo "rmmod 8188eu" > /dev/null
+    logInfo "Building and inserting wifi module \n"
+    setWorkingDirToScriptDir
+    cd ../rtl8188eu
+    git pull #> /dev/null
+    make all > /dev/null
+    runAsSudo "make install" > /dev/null
+    runAsSudo "insmod 8188eu.ko" > /dev/null
+# fi
+
+runAsSudo "service dnsmasq restart"
