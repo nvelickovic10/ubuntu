@@ -1,0 +1,17 @@
+#!/bin/bash
+# Removes old revisions of snaps
+
+SCRIPT_DESC="Removes old revisions of snaps. CLOSE ALL SNAPS BEFORE RUNNING THIS"
+commons_dir="/usr/local/bin/common"
+
+# Include common functions
+. ${commons_dir}/common.sh
+
+# Include root functions
+. ${commons_dir}/sudoUtil.sh
+
+set -eu
+snap list --all | awk '/disabled/{print $1, $3}' |
+    while read snapname revision; do
+        runAsSudo "snap remove '$snapname' --revision='$revision'"
+    done
