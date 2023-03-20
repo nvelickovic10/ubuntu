@@ -1,7 +1,7 @@
 #!/bin/bash
-# Removes old revisions of snaps
+# Removes old revisions of snaps and docker system
 
-SCRIPT_DESC="Removes old revisions of snaps. CLOSE ALL SNAPS BEFORE RUNNING THIS"
+SCRIPT_DESC="Removes old revisions of snaps and docker system"
 commons_dir="/usr/local/bin/common"
 
 # Include common functions
@@ -9,6 +9,8 @@ commons_dir="/usr/local/bin/common"
 
 # Include root functions
 . ${commons_dir}/sudoUtil.sh
+
+yes | docker system prune --all
 
 set -eu
 snap list --all | awk '/disabled/{print $1, $3}' |
