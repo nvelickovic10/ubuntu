@@ -2,7 +2,7 @@
 # This script will clean RAM
 
 SCRIPT_DESC="This script will clean RAM"
-commons_dir="/usr/local/bin/common"
+commons_dir="$( cd "$(dirname "${BASH_SOURCE[0]}")" ; pwd -P )/common"
 
 # Include common functions
 . ${commons_dir}/common.sh

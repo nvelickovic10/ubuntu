@@ -2,7 +2,7 @@
 # This script will fix internet
 
 SCRIPT_DESC="This script will fix internet"
-commons_dir="/usr/local/bin/common"
+commons_dir="$( cd "$(dirname "${BASH_SOURCE[0]}")" ; pwd -P )/common"
 
 # Include common functions
 . ${commons_dir}/common.sh

@@ -2,7 +2,7 @@
 # Removes old revisions of snaps and docker system
 
 SCRIPT_DESC="Removes old revisions of snaps and docker system"
-commons_dir="/usr/local/bin/common"
+commons_dir="$( cd "$(dirname "${BASH_SOURCE[0]}")" ; pwd -P )/common"
 
 # Include common functions
 . ${commons_dir}/common.sh
