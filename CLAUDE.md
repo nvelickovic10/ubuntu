@@ -3,9 +3,8 @@
 Personal Ubuntu tooling and setup notes (remote: `github.com/nvelickovic10/ubuntu`, branch `master`). `bin/` is on `PATH`, so the `nv-*` scripts run by name.
 
 - `bin/` — `nv-*` helper scripts. `bin/common/` holds the shared shell libs they source (`common.sh`, `sudoUtil.sh`, `arrayUtil.sh`).
-- `Scripts/` — package listing helpers (`Packages/nv-packages-list-*`).
-- `install.txt`, `commandsold.txt`, `tips and tricks.txt` — old setup notes (2024).
-- `debs/` — downloaded packages. `Passwords.kdbx` is a KeePass database: never read or modify it.
+- `commandsold.txt`, `tips and tricks.txt` — old setup notes (2024).
+- `Passwords.kdbx` is a KeePass database: never read or modify it.
 
 Don't commit or push unless asked. System-level changes on this machine are documented in `~/system-notes/`, not here.
 
