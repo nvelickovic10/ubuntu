@@ -26,4 +26,13 @@ Maintenance wrapper around apt and snap. Usage: `nv-apt [--all | --clean | --upd
 | `--status`, `--s` | reports whether the private sources in `PRIVATE_SOURCES` (`tor.list`) are active in `/etc/apt/sources.list.d` ("work settings") or hidden as `.tor.list` ("personal settings") |
 | `--switch`, `--S` | toggles those sources by renaming `X.list` ↔ `.X.list`, then runs `--status` |
 
-Only `--all` passes `-y` (variable `ASSUME_YES`). It used to pipe `yes` into each step, which hung under `sudo-rs` (Ubuntu's current `sudo`) and could not answer prompts other than y/n; don't reintroduce `yes |` or `eval` pipelines. Pass flags to apt through `ASSUME_YES`, and keep each action a separate `fn_*` function selected by the `ACTION` variable.
+Only `--all` passes `-y` (variable `ASSUME_YES`). It used to pipe `yes` into each step and hung; the suspected cause is the pipe on stdin combined with `sudo-rs` (Ubuntu's current `sudo`), not confirmed because the fix was never run with real sudo. `yes` also cannot answer prompts other than y/n. Don't reintroduce `yes |` or `eval` pipelines. Pass flags to apt through `ASSUME_YES`, and keep each action a separate `fn_*` function selected by the `ACTION` variable.
+
+## nv-root-clean
+
+Frees disk space by removing unused container data and old snap revisions. Takes no options.
+
+1. `docker system prune --all --force` — runs as the current user (no sudo) and deletes all stopped containers, unused networks, build cache and **every image not used by a container**. On this machine that includes the `antenator-nec2-server` image whenever no container uses it, so it has to be pulled or rebuilt afterwards.
+2. `snap list --all` is filtered for `disabled` entries (old revisions kept by snap), and each one is removed with `runAsSudo "snap remove <name> --revision=<rev> < /dev/null"`. Active revisions are untouched. The `< /dev/null` keeps the command from swallowing the rest of the list read by the `while read` loop.
+
+Note: `set -eu` is enabled only after the docker step, so a docker failure does not stop the script but a failing snap removal does.
