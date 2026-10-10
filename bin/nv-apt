@@ -33,15 +33,15 @@ function printHelpAndExit {
 }
 
 function fn_all {
-    local COMMAND="yes | fn_update && yes | fn_upgrade && yes | fn_clean && yes | fn_snap"
-    logInfo "Running ALL command: ${COMMAND}"
-    eval ${COMMAND}
+    logInfo "Running ALL command: update && upgrade && clean && snap"
+    ASSUME_YES="-y"
+    fn_update && fn_upgrade && fn_clean && fn_snap
 }
 
 function fn_clean {
-    local COMMAND="apt autoremove && apt autoclean && apt clean"
+    local COMMAND="apt ${ASSUME_YES} autoremove && apt ${ASSUME_YES} autoclean && apt ${ASSUME_YES} clean"
     logInfo "Running CLEAN command: ${COMMAND}"
-    runAsSudo "apt autoremove && apt autoclean && apt clean"
+    runAsSudo "${COMMAND}"
 }
 
 function fn_update {
@@ -51,7 +51,7 @@ function fn_update {
 }
 
 function fn_upgrade {
-    local COMMAND="apt dist-upgrade"
+    local COMMAND="apt ${ASSUME_YES} dist-upgrade"
     logInfo "Running UPGRADE command: ${COMMAND}"
     runAsSudo "${COMMAND}"
 }
@@ -90,6 +90,7 @@ function fn_switch {
     fn_status
 }
 
+ASSUME_YES=""
 ACTION="fn_all"
 # Parsing command line arguments
 for arg; do
