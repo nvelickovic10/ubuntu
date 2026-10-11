@@ -1,6 +1,6 @@
 # MacBook Pro 11,3 – sistemske izmene
 
-**Hardver:** MacBookPro11,3, i7-4870HQ, Intel Iris Pro 5200 + NVIDIA GeForce GT 750M
+**Hardver:** MacBook Pro 15" Retina (mid 2014), MacBookPro11,3, i7-4870HQ, Intel Iris Pro 5200 + NVIDIA GeForce GT 750M
 **Sistem:** Ubuntu 26.04, kernel 7.0, GNOME Wayland. **Boot:** rEFInd → GRUB (`/EFI/ubuntu/grubx64.efi`); parametri kernela u `/etc/default/grub` i `/etc/default/grub.d/`.
 
 ## Kritično (ne diraj)
