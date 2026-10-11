@@ -35,3 +35,16 @@ Frees disk space by removing unused container data and old snap revisions. Takes
 2. `snap list --all` is filtered for `disabled` entries (old revisions kept by snap), and each one is removed with `runAsSudo "snap remove <name> --revision=<rev> < /dev/null"`. Active revisions are untouched. The `< /dev/null` keeps the command from swallowing the rest of the list read by the `while read` loop.
 
 Note: `set -eu` is enabled only after the docker step, so a docker failure does not stop the script but a failing snap removal does.
+
+## nv-hibernate
+
+`nv-hibernate on|off` turns hibernation on or off as a whole. Needs sudo (sources `sudoUtil.sh`).
+
+- `off`: disables the `hibernate-menu@local` GNOME extension (hides the power menu item), deletes `/etc/default/grub.d/90-resume.cfg` and `/etc/initramfs-tools/conf.d/resume`, recreates `/swap.img` as 4G (`swapoff`, `rm`, `fallocate`, `mkswap`, `swapon`), then `update-initramfs -u -k all && update-grub`.
+- `on`: recreates `/swap.img` as 20G, reads `resume_offset` from the first extent of `sudo filefrag -v /swap.img`, writes both resume configs with the root UUID and that offset, rebuilds initramfs/grub, enables the extension.
+- Both are idempotent for the swap size (skipped if the file already has the target size). The new kernel command line only applies after a reboot, so reboot before the first hibernation after `on`.
+- The offset changes every time `/swap.img` is recreated, which is why the resume config is rewritten on `on` and dropped on `off`. Don't recreate the swap file elsewhere without redoing it.
+
+## nv-turbo
+
+`nv-turbo on|off` enables or disables Intel Turbo Boost by writing `0` / `1` to `/sys/devices/system/cpu/intel_pstate/no_turbo` through `runAsSudo`, then logs the resulting state. The setting lasts until reboot. It replaces the `nv-turbo-on` / `nv-turbo-off` aliases that used to live in `~/.bash_aliases` (removed).

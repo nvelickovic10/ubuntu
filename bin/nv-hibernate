@@ -1,0 +1,73 @@
+#!/bin/bash
+# Turns hibernation on or off: power menu item, swap size and resume config
+
+SCRIPT_DESC="Usage: nv-hibernate on|off (off: hide Hibernate, swap 4G, drop resume config; on: show Hibernate, swap 20G, set resume config)"
+commons_dir="$( cd "$(dirname "${BASH_SOURCE[0]}")" ; pwd -P )/common"
+EXTENSION="hibernate-menu@local"
+SWAP_FILE="/swap.img"
+SWAP_OFF_GB=4
+SWAP_ON_GB=20
+GRUB_RESUME_CONF="/etc/default/grub.d/90-resume.cfg"
+INITRAMFS_RESUME_CONF="/etc/initramfs-tools/conf.d/resume"
+
+# Include common functions
+. ${commons_dir}/common.sh
+
+# Include root functions
+. ${commons_dir}/sudoUtil.sh
+
+# Recreates the swap file with the given size in GB (a no-op if it already has that size)
+function resizeSwap {
+    local GB="$1"
+    local CURRENT_BYTES
+    CURRENT_BYTES=$(stat -c %s "${SWAP_FILE}")
+    if [ "${CURRENT_BYTES}" -eq $((GB * 1024 * 1024 * 1024)) ]; then
+        logInfo "${SWAP_FILE} is already ${GB}G"
+        return
+    fi
+    runAsSudo "swapoff ${SWAP_FILE} && rm ${SWAP_FILE} && fallocate -l ${GB}G ${SWAP_FILE} && chmod 600 ${SWAP_FILE} && mkswap ${SWAP_FILE} && swapon ${SWAP_FILE}"
+}
+
+# Prints the first physical offset of the swap file (resume_offset), taken from filefrag
+function swapOffset {
+    sudo filefrag -v "${SWAP_FILE}" | sed -nE 's/^ *0: +[0-9]+\.\. *[0-9]+: +([0-9]+)\.\..*/\1/p'
+}
+
+function applyBootConfig {
+    runAsSudo "update-initramfs -u -k all && update-grub"
+}
+
+function hibernateOff {
+    gnome-extensions disable "${EXTENSION}"
+    runAsSudo "rm -f ${GRUB_RESUME_CONF} ${INITRAMFS_RESUME_CONF}"
+    resizeSwap "${SWAP_OFF_GB}"
+    applyBootConfig
+    logInfo "Hibernate is OFF (menu item removed, swap ${SWAP_OFF_GB}G, resume config removed)"
+    logInfo "Reboot to drop resume= from the kernel command line"
+}
+
+function hibernateOn {
+    local UUID OFFSET
+    UUID=$(findmnt -no UUID /)
+    resizeSwap "${SWAP_ON_GB}"
+    OFFSET=$(swapOffset)
+    if [ -z "${UUID}" ] || [ -z "${OFFSET}" ]; then
+        logError "Could not determine root UUID (${UUID}) or swap offset (${OFFSET})"
+        exit 1
+    fi
+    runAsSudo "printf \"GRUB_CMDLINE_LINUX_DEFAULT=\\\"quiet splash resume=UUID=${UUID} resume_offset=${OFFSET}\\\"\n\" > ${GRUB_RESUME_CONF}"
+    runAsSudo "printf \"RESUME=UUID=${UUID} resume_offset=${OFFSET}\n\" > ${INITRAMFS_RESUME_CONF}"
+    applyBootConfig
+    gnome-extensions enable "${EXTENSION}"
+    logInfo "Hibernate is ON (menu item shown, swap ${SWAP_ON_GB}G, resume_offset=${OFFSET})"
+    logInfo "Reboot before the first hibernation so the new resume_offset is loaded"
+}
+
+case "${1:-}" in
+    on) hibernateOn ;;
+    off) hibernateOff ;;
+    *)
+        logError "Usage: nv-hibernate on|off"
+        exit 1
+        ;;
+esac
