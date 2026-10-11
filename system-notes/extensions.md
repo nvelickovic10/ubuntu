@@ -28,3 +28,11 @@ Pri svakom startu i `--resume` prikazuje listu iz `~/.claude/CLAUDE.md` (sekcija
 - Skripta: `~/.claude/reminders-hook.py`; hook je u `~/.claude/settings.json` (`hooks.SessionStart`, matcher `startup|resume`).
 - Zamenjuje `cc` alias (obrisan iz `~/.bash_aliases`) i stari „reminders“ mod (`~/.claude/dev-mods/.../reminders`) sa `~/.claude/reminders.md`.
 - Vraćanje: ukloniti ključ `hooks` iz `~/.claude/settings.json` (ili vratiti `~/.claude/backups/settings.json.pre-reminders-hook`) i obrisati `~/.claude/reminders-hook.py`.
+
+## Claude Code: run-preview mod (traka iznad prompta)
+
+Traka „run.sh ready“ iznad prompta: hover prikazuje sadržaj `$XDG_RUNTIME_DIR/run.sh`, dugme kopira liniju `! bash $XDG_RUNTIME_DIR/run.sh`.
+
+- Fajlovi: `~/.claude/skills/run-preview/` (`.claude-plugin/plugin.json`, `hooks/hooks.json`, `hooks/register.tsx`); Claude Code ga sam učitava iz skills foldera, u svakoj sesiji.
+- Radi samo u interaktivnom terminalu (u pozadinskim sesijama se traka ne iscrtava). Posle izmene: `/reload-plugins`.
+- Vraćanje: obrisati `~/.claude/skills/run-preview/`.
