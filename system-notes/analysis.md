@@ -19,7 +19,7 @@ Bilo 23,6 s, sada **14,2 s** (2,0 s kernel + 12,2 s userspace). Uzrok je bio `gp
 
 **apt (ručno instalirano):**
 - Razvoj: `git`, `build-essential`, `gcc`, `g++`, `nasm`, `pkg-config`, `checkinstall`, `dkms`, `code` (.deb), `openjdk-17-jdk-headless`, `python-is-python3`, `pipx`, `docker-ce` + `containerd.io`, `mongodb-mongosh`, `pgadmin4-desktop`, `xvfb`
-- Hardver i sistem: `broadcom-sta-dkms`, `isight-firmware-tools`, `mbpfan`, `lm-sensors`, `powertop`, `intel-gpu-tools`, `vainfo`, `mesa-utils`, `efibootmgr`, `gparted`, `kyocera-sane`, `stress`, `phoronix-test-suite`
+- Hardver i sistem: `broadcom-sta-dkms`, `isight-firmware-tools`, `mbpfan`, `lm-sensors`, `powertop`, `intel-gpu-tools`, `vainfo`, `mesa-utils`, `efibootmgr`, `gparted`, `kyocera-sane`, `stress`
 - Aplikacije: `google-chrome-stable`, `vlc`, `transmission`, `copyq`, `caffeine`, `imagemagick`, `htop`, `autojump`, `screen`, `curl`
 - Ostalo: `ibus-table-cangjie*`, `xfonts-cyrillic`, `xfonts-scalable`, `wbritish`
 
@@ -40,6 +40,7 @@ Ponavljanje popisa: `apt-mark showmanual; snap list; apt list --installed 2>/dev
 - **Servisi ugašeni:** `ModemManager`, `cups-browsed`, `avahi-daemon` (+ socket); vraćanje `sudo systemctl enable --now avahi-daemon.socket avahi-daemon cups-browsed`. Štampač ECOSYS-M2135dn je statički (`socket://192.168.100.33`). `cups` i `bolt` ostaju.
 - **`containerd`** ugašen (`systemctl disable --now containerd`; vraćanje `enable --now`), ali `docker.socket` ostaje uključen pa prvi `docker` poziv ponovo pokrene `docker.service` i `containerd`. Ako se `containerd` ugasi dok `docker` radi, dockerd je pokvaren: `sudo systemctl stop docker docker.socket`.
 - **DNS:** posle uklanjanja `dnsmasq` `/etc/resolv.conf` je prebačen: `sudo ln -sf /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf`.
+- **`phoronix-test-suite`** (2026-10-11) sa `~/.phoronix-test-suite` (51 MB, uključujući sačuvan rezultat `test-results/qq`): rezultat je nepovratan; paket `sudo apt install phoronix-test-suite`.
 
 ### Čišćenje home foldera (2026-10-10)
 
