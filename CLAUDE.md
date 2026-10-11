@@ -3,10 +3,11 @@
 Personal Ubuntu tooling and setup notes (remote: `github.com/nvelickovic10/ubuntu`, branch `master`). `bin/` is on `PATH`, so the `nv-*` scripts run by name.
 
 - `bin/` — `nv-*` helper scripts. `bin/common/` holds the shared shell libs they source (`common.sh`, `sudoUtil.sh`, `arrayUtil.sh`).
+- `system-notes/` — notes on system-level changes on this machine (Serbian), indexed by `system-notes/README.md`. Update the relevant note after each system-level change.
 - `commandsold.txt`, `tips and tricks.txt` — old setup notes (2024).
 - `Passwords.kdbx` is a KeePass database: never read or modify it.
 
-Don't commit or push unless asked. System-level changes on this machine are documented in `~/system-notes/`, not here.
+Don't commit or push unless asked. System-level changes on this machine are documented in `system-notes/` (imported below), not in the script notes.
 
 ## Script conventions
 
@@ -48,3 +49,10 @@ Note: `set -eu` is enabled only after the docker step, so a docker failure does 
 ## nv-turbo
 
 `nv-turbo on|off` enables or disables Intel Turbo Boost by writing `0` / `1` to `/sys/devices/system/cpu/intel_pstate/no_turbo` through `runAsSudo`, then logs the resulting state. The setting lasts until reboot. It replaces the `nv-turbo-on` / `nv-turbo-off` aliases that used to live in `~/.bash_aliases` (removed).
+
+## System notes
+
+@system-notes/README.md
+@system-notes/macbook-setup.md
+@system-notes/analysis.md
+@system-notes/extensions.md
