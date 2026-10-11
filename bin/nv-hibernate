@@ -55,7 +55,8 @@ function hibernateOn {
         logError "Could not determine root UUID (${UUID}) or swap offset (${OFFSET})"
         exit 1
     fi
-    runAsSudo "printf \"GRUB_CMDLINE_LINUX_DEFAULT=\\\"quiet splash resume=UUID=${UUID} resume_offset=${OFFSET}\\\"\n\" > ${GRUB_RESUME_CONF}"
+    # No "quiet splash" on purpose: the boot is verbose, so hibernation resume progress is visible
+    runAsSudo "printf \"GRUB_CMDLINE_LINUX_DEFAULT=\\\"resume=UUID=${UUID} resume_offset=${OFFSET}\\\"\n\" > ${GRUB_RESUME_CONF}"
     runAsSudo "printf \"RESUME=UUID=${UUID} resume_offset=${OFFSET}\n\" > ${INITRAMFS_RESUME_CONF}"
     applyBootConfig
     # The running kernel still has the old offset; without this systemd reports hibernation as unavailable until reboot
