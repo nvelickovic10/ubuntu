@@ -41,8 +41,8 @@ Note: `set -eu` is enabled only after the docker step, so a docker failure does 
 `nv-hibernate on|off` turns hibernation on or off as a whole. Needs sudo (sources `sudoUtil.sh`).
 
 - `off`: disables the `hibernate-menu@local` GNOME extension (hides the power menu item), deletes `/etc/default/grub.d/90-resume.cfg` and `/etc/initramfs-tools/conf.d/resume`, recreates `/swap.img` as 4G (`swapoff`, `rm`, `fallocate`, `mkswap`, `swapon`), then `update-initramfs -u -k all && update-grub`.
-- `on`: recreates `/swap.img` as 20G, reads `resume_offset` from the first extent of `sudo filefrag -v /swap.img`, writes both resume configs with the root UUID and that offset, rebuilds initramfs/grub, enables the extension.
-- Both are idempotent for the swap size (skipped if the file already has the target size). The new kernel command line only applies after a reboot, so reboot before the first hibernation after `on`.
+- `on`: recreates `/swap.img` as 20G, reads `resume_offset` from the first extent of `sudo filefrag -v /swap.img`, writes both resume configs with the root UUID and that offset, rebuilds initramfs/grub, writes the offset to `/sys/power/resume_offset` of the running kernel, enables the extension.
+- Both are idempotent for the swap size (skipped if the file already has the target size). The runtime write to `/sys/power/resume_offset` is needed because logind reports `CanHibernate=na` while the running kernel's offset differs from the swap file's; the new command line itself only applies after a reboot.
 - The offset changes every time `/swap.img` is recreated, which is why the resume config is rewritten on `on` and dropped on `off`. Don't recreate the swap file elsewhere without redoing it.
 
 ## nv-turbo
