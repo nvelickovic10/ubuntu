@@ -18,7 +18,7 @@ Bilo 23,6 s, sada **14,2 s** (2,0 s kernel + 12,2 s userspace). Uzrok je bio `gp
 ## Instalirani softver (popis 2026-10-09, ažurirano 2026-10-11; Ubuntu 26.04.1, kernel 7.0.0-38)
 
 **apt (ručno instalirano):**
-- Razvoj: `git`, `build-essential`, `gcc`, `g++`, `nasm`, `pkg-config`, `checkinstall`, `dkms`, `code` (.deb), `openjdk-17-jdk-headless`, `adb`, `python-is-python3`, `pipx`, `docker-ce` + `containerd.io`, `mongodb-mongosh`, `pgadmin4-desktop`, `xvfb`
+- Razvoj: `git`, `build-essential`, `gcc`, `g++`, `nasm`, `pkg-config`, `checkinstall`, `dkms`, `code` (.deb), `openjdk-17-jdk-headless`, `python-is-python3`, `pipx`, `docker-ce` + `containerd.io`, `mongodb-mongosh`, `pgadmin4-desktop`, `xvfb`
 - Hardver i sistem: `broadcom-sta-dkms`, `isight-firmware-tools`, `mbpfan`, `lm-sensors`, `powertop`, `intel-gpu-tools`, `vainfo`, `mesa-utils`, `efibootmgr`, `gparted`, `kyocera-sane`, `stress`, `phoronix-test-suite`
 - Aplikacije: `google-chrome-stable`, `vlc`, `transmission`, `copyq`, `caffeine`, `imagemagick`, `htop`, `autojump`, `screen`, `curl`
 - Ostalo: `ibus-table-cangjie*`, `xfonts-cyrillic`, `xfonts-scalable`, `wbritish`

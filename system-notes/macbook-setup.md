@@ -18,7 +18,7 @@ Procesor je posle paljenja išao na 90–100°C: NVIDIA je radila bez drajvera (
 
 - Blokada nouveau-a uklonjena (`/etc/modprobe.d/blacklist-nouveau.conf.bak`); `nvidia-off.service` (enabled) pri paljenju upisuje `OFF` u vga_switcheroo; EFI promenljiva `gpu-power-prefs-fa4ce28d-b62f-4c99-9cc3-6815686e30f9` = `01` (ekran na Intelu).
 - `/etc/environment`: `LIBVA_DRIVER_NAME=i965`; `/etc/X11/xorg.conf` → `xorg.conf.nvidia-old`; iz GRUB-a uklonjen `nvidia.drm-modeset=1`; uklonjen `vdpau-va-driver`.
-- Indekser (`localsearch`): ignorisani `go`, `Android`, `snap`, `node_modules`, `vendor`, `venv`, `.venv`, `__pycache__`, `build`, `dist`, `target` (127 → ~6 hiljada fajlova); `~/Documents/videobolt` isključen fajlom `.trackerignore` (isto radi `touch <folder>/.trackerignore`).
+- Indekser (`localsearch`): ignorisani `go`, `snap`, `node_modules`, `vendor`, `venv`, `.venv`, `__pycache__`, `build`, `dist`, `target` (127 → ~6 hiljada fajlova); `~/Documents/videobolt` isključen fajlom `.trackerignore` (isto radi `touch <folder>/.trackerignore`).
 - Docker se ne pali sa sistemom (`docker.socket` ga pokreće na zahtev).
 - `gpu-manager.service` maskiran: čekao je 10 s na NVIDIA udev pravila (vidi `analysis.md`, trajanje boota).
 - **Očekivano stanje:** jezgra u mirovanju 58–61°C, ventilatori ~2300 RPM; `glxinfo -B | grep renderer` → `Mesa Intel(R) Iris(R) Pro Graphics P5200`; `/sys/bus/pci/devices/0000:01:00.0/power_state` → `D3hot`; `sudo cat /sys/kernel/debug/vgaswitcheroo/switch` → `DIS ... Off`.
@@ -56,6 +56,13 @@ Ne može da se vrati: obrisani Docker kontejneri (image `antenator-nec2-server` 
 - `/etc/UPower/UPower.conf.d/90-hibernate.conf`: `CriticalPowerAction=Hibernate` (pri 2 % baterije); promena pa `sudo systemctl restart upower`.
 - Istorija: prvi pokušaj nije učitao sliku (uzrok nepoznat), drugi radi (~10 s upis i čitanje). Fragmentacija swap fajla nije uzrok problema.
 - **Vraćanje:** obrisati `90-resume.cfg` i `conf.d/resume`, pa `sudo update-initramfs -u -k all && sudo update-grub`; swap: `nv-hibernate off`.
+
+## Zram swap (uključen, 2026-10-11)
+
+- Paket `systemd-zram-generator`, konfiguracija `/etc/systemd/zram-generator.conf`: `[zram0]`, `zram-size = ram / 4` (4 GiB), `compression-algorithm = zstd`, `swap-priority = 100`. Kernel puni zram pre `/swap.img` (prioritet -1); hibernacija i dalje ide u `/swap.img` preko `resume=`.
+- Zašto: pre toga se swap praktično nije koristio (sysstat od 8. 10: najviše 1,8 MB, 0 OOM), pa je ovo više mera predostrožnosti za teža opterećenja (VM-ovi, veliki buildovi) nego rešenje stvarnog problema. Zram je običan RAM, pa ulazi u hibernacionu sliku i vraća se pri buđenju.
+- Provera: `swapon --show` (`/dev/zram0` prio 100 + `/swap.img` prio -1), `zramctl`.
+- **Vraćanje:** `sudo systemctl stop systemd-zram-setup@zram0.service && sudo apt remove systemd-zram-generator && sudo rm /etc/systemd/zram-generator.conf`.
 
 ## Ostalo
 
