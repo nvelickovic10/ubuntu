@@ -31,7 +31,7 @@ Pri svakom startu i `--resume` prikazuje listu iz `~/.claude/CLAUDE.md` (sekcija
 
 ## Claude Code: run-preview mod (traka iznad prompta)
 
-Traka „run.sh ready“ iznad prompta: hover prikazuje sadržaj `$XDG_RUNTIME_DIR/run.sh`, dugme kopira liniju `! bash $XDG_RUNTIME_DIR/run.sh`.
+Traka „run.sh ready“ iznad prompta: hover preko dugmeta „Show script“ prikazuje sadržaj `$XDG_RUNTIME_DIR/run.sh` (do 30 linija), klik na njega ga ispisuje u transkript, „Copy run line“ kopira liniju `! bash $XDG_RUNTIME_DIR/run.sh`, „Delete script“ briše `$XDG_RUNTIME_DIR/run.sh` (bez potvrde). Miš (klik i hover) radi samo u fullscreen modu (`/tui fullscreen` ili `CLAUDE_CODE_NO_FLICKER=1`); u običnom modu dugmad i hover ne reaguju.
 
 - Fajlovi: `~/.claude/skills/run-preview/` (`.claude-plugin/plugin.json`, `hooks/hooks.json`, `hooks/register.tsx`); Claude Code ga sam učitava iz skills foldera, u svakoj sesiji.
 - Radi samo u interaktivnom terminalu (u pozadinskim sesijama se traka ne iscrtava). Posle izmene: `/reload-plugins`.
