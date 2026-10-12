@@ -50,6 +50,10 @@ Note: `set -eu` is enabled only after the docker step, so a docker failure does 
 
 `nv-turbo on|off` enables or disables Intel Turbo Boost by writing `0` / `1` to `/sys/devices/system/cpu/intel_pstate/no_turbo` through `runAsSudo`, then logs the resulting state. The setting lasts until reboot. It replaces the `nv-turbo-on` / `nv-turbo-off` aliases that used to live in `~/.bash_aliases` (removed).
 
+## nv-claude-sh
+
+Runs `$XDG_RUNTIME_DIR/run.sh`, the single script Claude Code overwrites for commands the user has to run (see the global CLAUDE.md). Takes no options, prints an error and exits 1 if the file is missing, otherwise exits with the script's own status. It replaces typing `bash $XDG_RUNTIME_DIR/run.sh` by hand.
+
 ## System notes
 
 @system-notes/README.md

@@ -1,0 +1,16 @@
+#!/bin/bash
+# Runs the script Claude Code left in $XDG_RUNTIME_DIR/run.sh
+
+SCRIPT_DESC="Usage: nv-claude-sh (runs \$XDG_RUNTIME_DIR/run.sh, the script Claude Code prepared)"
+commons_dir="$( cd "$(dirname "${BASH_SOURCE[0]}")" ; pwd -P )/common"
+RUN_SH="${XDG_RUNTIME_DIR:-}/run.sh"
+
+# Include common functions
+. ${commons_dir}/common.sh
+
+if [ -z "${XDG_RUNTIME_DIR:-}" ] || [ ! -f "${RUN_SH}" ]; then
+    logError "${RUN_SH} not found"
+    exit 1
+fi
+
+bash "${RUN_SH}"
