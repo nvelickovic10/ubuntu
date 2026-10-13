@@ -6,14 +6,14 @@ Naše izmene Claude Code-a (hookovi, modovi, permission pravila, helperi), svaka
 
 Traka „run.sh ready“ iznad prompta za `$XDG_RUNTIME_DIR/run.sh`, skriptu koju Claude piše kad korisnik treba nešto da pokrene (sudo). Dugmad:
 
-- „Show script“: hover prikazuje sadržaj skripte (do 30 linija), klik ga ispisuje u transkript.
+- Dugmeta „Show script“ nema (bilo je toggle panela sa bash highlightingom i popupom komentara, uklonjeno): Claude skriptu ispiše u odgovoru, u ```bash bloku sa komentarima, komentari su vidljivi (mod `script-hover` je probán i uklonjen).
 - „Accept“: pokreće skriptu (do 10 minuta) tako da svaki `sudo` u njoj postaje `sudo -A`, pa se lozinka traži u zenity prozoru (`~/.local/bin/sudo-askpass`, vidi odeljak ispod). Posle izvršenja skripta se briše, a Claude dobija poruku sa exit kodom, stdout i stderr (poslednjih 4000 znakova) i nastavlja sam. Dok radi, traka piše „running...“.
 - „Decline“: briše skriptu (bez potvrde) i javlja Claude-u da je odbijena i da je ne pokreće.
 - „Copy run line“: kopira `bash $XDG_RUNTIME_DIR/run.sh` (bez `!`, za običan terminal).
 
 Miš (klik i hover) radi samo u fullscreen modu (`/tui fullscreen` ili `CLAUDE_CODE_NO_FLICKER=1`); u običnom modu dugmad i hover ne reaguju. Accept je potvrđen u radu: zenity prozor se otvara i izlaz stiže do Claude-a.
 
-- Fajlovi: `~/.claude/skills/run-preview/` (`.claude-plugin/plugin.json`, `hooks/hooks.json`, `hooks/register.tsx`, `types/index.d.ts` za stanje `rev` (ponovno iscrtavanje trake posle brisanja skripte) i `busy` (skripta trenutno radi)); Claude Code ga sam učitava iz skills foldera, u svakoj sesiji.
+- Fajlovi: `~/.claude/skills/run-preview/` (`.claude-plugin/plugin.json`, `hooks/hooks.json`, `hooks/register.tsx`, `types/index.d.ts` za stanje `rev` (ponovno iscrtavanje trake posle brisanja skripte), i `busy` (skripta trenutno radi)); Claude Code ga sam učitava iz skills foldera, u svakoj sesiji.
 - Radi samo u interaktivnom terminalu (u pozadinskim sesijama se traka ne iscrtava) i kad je korisnik ispred mašine (zenity prozor). Posle izmene: `/reload-plugins`.
 - Vraćanje: obrisati `~/.claude/skills/run-preview/`.
 
@@ -21,7 +21,7 @@ Miš (klik i hover) radi samo u fullscreen modu (`/tui fullscreen` ili `CLAUDE_C
 
 Izlaz skripte pokrenute dugmetom „Accept“ ili preko `!` vidi se tek kad se skripta završi. Zato je `run.sh` tanak omotač oko `nv-live` (`~/Documents/ubuntu/bin/nv-live`, opis u `~/Documents/ubuntu/CLAUDE.md`): `nv-live "<naslov>" <<'EOF' ... EOF`. Telo skripte radi u prozoru GNOME Terminala (izlaz uživo, sudo lozinka se kuca tamo), uz upis u `$XDG_RUNTIME_DIR/run.log` i `run.rc`; na kraju prozor čeka Enter, pa se log i exit kod vraćaju Claude-u.
 
-- Pravilo za Claude-a je u `~/.claude/CLAUDE.md` (odeljak „Commands for the user to run“).
+- Pravilo za Claude-a je u `~/.claude/CLAUDE.md` (odeljak „Commands for the user to run“). To je jedini izvor pravila (memory fajl je obrisan da ne bi bilo dve verzije): jedan `run.sh`, omotač `nv-live`, komentar iznad svake linije, a odgovor mora da sadrži opis, rečenicu sa `bash $XDG_RUNTIME_DIR/run.sh` (bez `!`) i celu skriptu u ```bash bloku.
 - Zavisnosti: `gnome-terminal` i otvorena grafička sesija.
 - Vraćanje: obrisati `nv-live` i stavku iz `~/.claude/CLAUDE.md`; `run.sh` opet piše telo direktno.
 
@@ -51,6 +51,7 @@ Jedan red iznad prompta sa trakama `SESSION` (5h prozor), `WEEKLY` (7d prozor) i
 - **Podaci:** `session.measure` hook (`rateLimits`, `context.percent`), početno stanje iz `$.session.usage()` pri `session.start`.
 - **Podsetnici:** skroz desno u istom redu je `⏰ N`, broj podsetnika iz liste u `~/.claude/CLAUDE.md` (sekcija „Reminder list“, nema više SessionStart hooka, podsetnici se prikazuju samo ovde; čita se pri svakom iscrtavanju). Klik na broj (toggle) otvara/zatvara celu listu iznad reda, poravnatu udesno. Ispred svakog podsetnika je dugme „✕“: klik ga briše iz `~/.claude/CLAUDE.md` (fajl se pri kliku ponovo čita) i prikazuje toast; kad se obriše poslednji, upisuje se `- (empty)`. Klik radi samo u fullscreen modu.
 - **Agent za podsetnik:** pored „✕“ je dugme „▶“. Klik pokreće pozadinsku sesiju (`claude --bg --name "rem: <tekst>" "<tekst podsetnika>"`, vidi se u Agent view-u) i pamti vezu podsetnik → id sesije u `$.store` pod ključem `reminderAgents` (preživljava restart). Posle toga dugme pokazuje stanje sesije kao Agent view: spinner dok radi, `✓` završena, `✗` pala, `●` ostalo (npr. čeka unos), `○` još nepoznato; kad sesije više nema (`claude rm`), opet „▶“ (klik pravi novog agenta). Klik na dugme sa stanjem samo prikazuje toast sa stanjem i prvim redom poslednjeg odgovora (iz transkripta `~/.claude/projects/<cwd>/<sessionId>.jsonl`); ništa se ne otvara ni kopira. Stanja se čitaju sa `claude agents --json --all` na 3 s, ali samo dok je lista podsetnika otvorena ili neka sesija radi (i jednom pri otvaranju liste); spinner se pomera na 120 ms samo dok lista stoji otvorena i sesija radi. Plugin ne može da prebaci ekran u drugu sesiju, pa se u nju ulazi preko `claude attach <id>` ili ← (Agent view). `claude --bg` radi samo u poverenom folderu: pokreće se u folderu sesije, a ako nije poveren, u `~/Documents`.
+- **Panel podsetnika (⏰):** ima isti blagi okvir kao hover panel run-preview moda (`borderStyle="round"` + `borderDimColor`).
 - **Fajlovi:** `~/.claude/skills/health-bars/` (`.claude-plugin/plugin.json`, `hooks/register.tsx`, `types/index.d.ts`, `tests/band.test.ts`); Claude Code ga sam učitava iz skills foldera, u svakoj sesiji. Testovi: `claude plugin test <folder>`; posle izmene: `/reload-plugins`.
 - **Vraćanje:** obrisati `~/.claude/skills/health-bars/`.
 

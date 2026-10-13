@@ -26,7 +26,7 @@ Maintenance wrapper around apt and snap. Usage: `nv-apt [--all | --clean | --upd
 | `--status`, `--s` | reports whether the private sources in `PRIVATE_SOURCES` (`tor.list`) are active in `/etc/apt/sources.list.d` ("work settings") or hidden as `.tor.list` ("personal settings") |
 | `--switch`, `--S` | toggles those sources by renaming `X.list` ↔ `.X.list`, then runs `--status` |
 
-Only `--all` passes `-y` (variable `ASSUME_YES`). It used to pipe `yes` into each step and hung; the suspected cause is the pipe on stdin combined with `sudo-rs` (Ubuntu's current `sudo`), not confirmed because the fix was never run with real sudo. `yes` also cannot answer prompts other than y/n. Don't reintroduce `yes |` or `eval` pipelines. Pass flags to apt through `ASSUME_YES`, and keep each action a separate `fn_*` function selected by the `ACTION` variable.
+Only `--all` passes `-y` (variable `ASSUME_YES`). It used to pipe `yes` into each step and hung; the cause was the pipe on stdin combined with `sudo-rs` (Ubuntu's current `sudo`); the fix (`-y` instead of the pipe) has been tested with real sudo and works. `yes` also cannot answer prompts other than y/n. Don't reintroduce `yes |` or `eval` pipelines. Pass flags to apt through `ASSUME_YES`, and keep each action a separate `fn_*` function selected by the `ACTION` variable.
 
 ## nv-root-clean
 
