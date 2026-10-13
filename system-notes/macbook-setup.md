@@ -5,14 +5,47 @@
 
 ## Kritično (ne diraj)
 
-- **NVIDIA ostaje ugašena** (`nvidia-off.service`). Zvanični drajver ne dolazi u obzir: serija 470 (poslednja za GT 750M) ne podržava kernel 7.0. Ako se vraća blokada nouveau-a, prvo ugasiti `nvidia-off.service`.
+- **NVIDIA/grafika: vidi odeljak „NVIDIA i grafika: režimi i stanje“ ispod.** Sada radi režim **B (NVIDIA vozi ekran)**, a `nvidia-off.service` je isključen i **ne sme se uključiti** dok je firmver na NVIDIA-i. Zvanični drajver ne dolazi u obzir: serija 470 (poslednja za GT 750M) ne podržava kernel 7.0. Ako se vraća blokada nouveau-a, prvo ugasiti `nvidia-off.service`.
 - **`/sys/power/disk` mora ostati `platform`** (podrazumevano). U režimu `shutdown` se hibernacija zaledi pri povratku (prisilno gašenje 10 s); uzrok nije utvrđen.
 - **`/swap.img` pravi samo `nv-hibernate on|off`.** Pri svakom novom pravljenju fajla menja se `resume_offset`, a skripta ga sama upisuje na sva mesta (vidi hibernaciju niže).
 - **`/etc/mbpfan.conf`:** ne vraćati stare test vrednosti (ventilatori na maksimumu). `mbpfan` i `thermald` ostaju; `macfanctld` ne instalirati uz `mbpfan`.
 - **Ne koristiti `powertop --auto-tune` i ne instalirati TLP** (sudara se sa power-profiles-daemon; na bateriji profil **Power Saver**). U PowerTOP-u „Bad” ostaju namerno: autosuspend za Apple tastaturu/trackpad, runtime PM za NVIDIA i SATA link power management (Apple AHCI ne podržava ALPM).
 - **Wi-Fi `wl` (BCM4360, `14e4:43a0`) je izuzet iz runtime PM-a** u `powersave-tune.sh`.
 
-## Grafika i hlađenje (2026-10-08, rešeno)
+## NVIDIA i grafika: režimi i stanje (ažurirano 2026-10-13)
+
+Ključ svega je koja grafika vozi **interni ekran od samog paljenja**. To bira firmver preko NVRAM promenljive `gpu-power-prefs-fa4ce28d-b62f-4c99-9cc3-6815686e30f9` (`07 00 00 00 01 00 00 00` = Intel; nema promenljive = NVIDIA). Kernel to ne može da promeni u radu.
+
+| | **A: Intel vozi ekran** | **B: NVIDIA vozi ekran (SADA)** |
+|---|---|---|
+| `gpu-power-prefs` | postoji, `01` | ne postoji (obrisana, vidi niže) |
+| `nvidia-off.service` | enabled | **disabled** (obavezno) |
+| `glxinfo -B` renderer | Mesa Intel Iris Pro P5200 | `NVE7` (nouveau); Intel samo sa `DRI_PRIME=1` |
+| i915 u logu | normalno | `failed to retrieve link info, disabling eDP` (očekivano, nema izlaza) |
+| NVIDIA `power_state` | `D3hot` | `D0` |
+| HDMI/TB | ne radi | radi (vidi niže) |
+| Temperatura | jezgra 58–61°C u mirovanju | merena samo 53°C u mirovanju; potrošnja i toplota veći pri opterećenju |
+
+**Zašto je sada B:** 2026-10-11 nismo uspeli da upalimo NVIDIA-u u radu za HDMI (vidi niže), pa je `nvidia-off.service` isključen i urađen restart. Do 2026-10-12 je promenljiva `gpu-power-prefs` obrisana, pa firmver od tada šalje ekran na NVIDIA-u. Korisnik je 2026-10-13 odlučio da ostane tako jer temperature nisu visoke.
+
+**Provera režima:** `readlink -f /sys/class/drm/card*/device` (nouveau je `card1`, i915 `card2`); `glxinfo -B | grep renderer`; `ls /sys/firmware/efi/efivars | grep gpu-power`; `systemctl is-enabled nvidia-off.service`.
+
+**Spoljni monitor u režimu B** (isprobano 2026-10-13, Samsung 2560x1440, HDMI direktno): priključiti kabl. Ako GNOME ne vidi monitor (konektor `disconnected`, u `dmesg`: `nouveau: DDC responded, but no EDID for HDMI-A-1`), ručno zatražiti detekciju: `echo detect | sudo tee /sys/class/drm/card1-HDMI-A-1/status` (`card1` proveriti kao gore). Posle toga se pojavi `HDMI-1` i GNOME ga postavi desno od internog ekrana.
+
+**Zašto se NVIDIA ne pali u radu** (provereno 2026-10-11, u režimu A): `echo ON > /sys/kernel/debug/vgaswitcheroo/switch` posle `OFF` ne uspeva (`Unable to change power state from D3cold to D0, device inaccessible`, nouveau `Client resume failed -16`; BAR-ovi ostaju nula). PCI `remove` + `rescan` ne pomaže: nouveau teardown zaglavi (`tee` u stanju D, `rescan` čeka iza njega, potreban restart). Uživo prebacivanje GPU-a (`IGD`/`DIS` u `switch`) nije probano: i915 je pri paljenju u B odustao od eDP-a, a pod Waylandom bi sesija verovatno pala. Zato se menja samo paljenjem.
+
+**Skripta:** `nv-nvidia on|off|status` radi oba prelaza ispod (`on` = B, `off` = A, `status` samo prikazuje stanje); posle `on`/`off` sledi restart. Ručni koraci su zapisani da se vidi šta skripta radi.
+
+**Prelazak B → A (Intel, hladnije):**
+1. Upisati promenljivu: `printf '\x07\x00\x00\x00\x01\x00\x00\x00' | sudo tee /sys/firmware/efi/efivars/gpu-power-prefs-fa4ce28d-b62f-4c99-9cc3-6815686e30f9 >/dev/null` (format viđen u ranijem `xxd`; upis nije ponovo proveren).
+2. `sudo systemctl enable nvidia-off.service`.
+3. Restart; proveriti kao u tabeli (kolona A).
+
+**Prelazak A → B:** `sudo systemctl disable nvidia-off.service`, obrisati promenljivu (`sudo chattr -i <fajl>; sudo rm <fajl>`), restart.
+
+**Upozorenje:** `nvidia-off.service` u režimu B ne uključivati. Piše `OFF` u vga_switcheroo, a NVIDIA tada vozi ekran; ishod nije proveren, a Intel nema izlaz za ekran.
+
+## Grafika i hlađenje (2026-10-08, rešeno; opisuje režim A)
 
 Procesor je posle paljenja išao na 90–100°C: NVIDIA je radila bez drajvera (CPU je renderovao softverski), indekser je skenirao 127 hiljada fajlova, a `LIBVA_DRIVER_NAME=nvidia` je kvario dekodiranje videa.
 
@@ -22,7 +55,7 @@ Procesor je posle paljenja išao na 90–100°C: NVIDIA je radila bez drajvera (
 - Docker se ne pali sa sistemom (`docker.socket` ga pokreće na zahtev).
 - `gpu-manager.service` maskiran: čekao je 10 s na NVIDIA udev pravila (vidi `analysis.md`, trajanje boota).
 - **Očekivano stanje:** jezgra u mirovanju 58–61°C, ventilatori ~2300 RPM; `glxinfo -B | grep renderer` → `Mesa Intel(R) Iris(R) Pro Graphics P5200`; `/sys/bus/pci/devices/0000:01:00.0/power_state` → `D3hot`; `sudo cat /sys/kernel/debug/vgaswitcheroo/switch` → `DIS ... Off`.
-- **HDMI/TB idu preko NVIDIA-e, ali se ona ne može upaliti u radu** (provereno 2026-10-11): `echo ON > .../vgaswitcheroo/switch` posle `OFF` ne uspeva (`Unable to change power state from D3cold to D0, device inaccessible`, nouveau `Client resume failed -16`; BAR-ovi ostaju nula). PCI `remove` + `rescan` ne pomaže: nouveau teardown zaglavi (`tee` u stanju D, `rescan` čeka iza njega, potreban restart). Za spoljni monitor: `sudo systemctl disable nvidia-off.service`, restart (firmver sam podigne karticu, nouveau je inicijalizuje), a posle `sudo systemctl enable nvidia-off.service`. Dok je upaljena, računati na veću temperaturu i potrošnju.
+- **HDMI/TB idu preko NVIDIA-e** (vidi „NVIDIA i grafika: režimi i stanje“: u režimu A radi samo posle restarta, u B odmah).
 - **Korisno:** `nv-turbo on|off` (do restarta), `sensors`, `sudo intel_gpu_top`. YouTube: dodatak **enhanced-h264ify** (blokirati VP8/VP9/AV1), jer Haswell hardverski dekodira samo H.264.
 - **Vraćanje** (posle grafičkih izmena restart):
 

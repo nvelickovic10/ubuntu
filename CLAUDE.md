@@ -50,6 +50,15 @@ Note: `set -eu` is enabled only after the docker step, so a docker failure does 
 
 `nv-turbo on|off` enables or disables Intel Turbo Boost by writing `0` / `1` to `/sys/devices/system/cpu/intel_pstate/no_turbo` through `runAsSudo`, then logs the resulting state. The setting lasts until reboot. It replaces the `nv-turbo-on` / `nv-turbo-off` aliases that used to live in `~/.bash_aliases` (removed).
 
+## nv-nvidia
+
+`nv-nvidia on|off|status` chooses which GPU drives the internal display from boot (details and the A/B mode table in `system-notes/macbook-setup.md`). Both switches need a reboot; `status` is read-only and compares the running display driver (the GPU of the connected eDP connector) with what is configured for the next boot.
+
+- `on` (NVIDIA, HDMI works): `systemctl disable nvidia-off.service` first, then removes the `gpu-power-prefs` EFI variable (`chattr -i` + `rm`).
+- `off` (Intel, NVIDIA powered off): writes the variable (`07 00 00 00 01 00 00 00`) and re-reads it, then `systemctl enable nvidia-off.service`.
+- The order is deliberate: the service must never be enabled while the firmware boots on NVIDIA (it would power off the GPU that drives the screen), so `on` stops the service first and `off` enables it only after the variable is verified. Both abort with an error if a step did not take effect. `status` prints an error for that dangerous combination.
+- Both modes are idempotent. `off` was not run on this machine yet (only the write format was checked against the earlier `xxd` of the variable).
+
 ## nv-claude-sh
 
 Runs `$XDG_RUNTIME_DIR/run.sh`, the single script Claude Code overwrites for commands the user has to run (see the global CLAUDE.md). Takes no options, prints an error and exits 1 if the file is missing, otherwise exits with the script's own status. It replaces typing `bash $XDG_RUNTIME_DIR/run.sh` by hand.

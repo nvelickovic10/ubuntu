@@ -1,0 +1,87 @@
+#!/bin/bash
+# Switches which GPU drives the internal display from boot (takes effect after reboot)
+
+SCRIPT_DESC="Usage: nv-nvidia on|off|status (on: NVIDIA drives the display, HDMI works; off: Intel drives it, NVIDIA is powered off; both need a reboot)"
+commons_dir="$( cd "$(dirname "${BASH_SOURCE[0]}")" ; pwd -P )/common"
+EFIVAR="/sys/firmware/efi/efivars/gpu-power-prefs-fa4ce28d-b62f-4c99-9cc3-6815686e30f9"
+EFIVAR_INTEL_HEX="07000000 01000000"
+SERVICE="nvidia-off.service"
+
+# Include common functions
+. ${commons_dir}/common.sh
+
+# Include root functions
+. ${commons_dir}/sudoUtil.sh
+
+function efivarIsIntel {
+    [ -e "${EFIVAR}" ] && [ "$(od -An -tx1 -v < "${EFIVAR}" | tr -d ' \n')" = "${EFIVAR_INTEL_HEX// /}" ]
+}
+
+function serviceEnabled {
+    [ "$(systemctl is-enabled "${SERVICE}" 2>/dev/null)" = "enabled" ]
+}
+
+# Prints the kernel driver of the GPU whose eDP connector is connected right now
+function currentDisplayDriver {
+    local CONNECTOR
+    for CONNECTOR in /sys/class/drm/card*-eDP-*; do
+        if [ "$(cat "${CONNECTOR}/status" 2>/dev/null)" = "connected" ]; then
+            basename "$(readlink -f "${CONNECTOR}/../device/driver")"
+            return
+        fi
+    done
+    echo "unknown"
+}
+
+function status {
+    local DRIVER
+    DRIVER=$(currentDisplayDriver)
+    logInfo "Now: display on ${DRIVER} ($( [ "${DRIVER}" = "nouveau" ] && echo NVIDIA || echo Intel ))"
+    logInfo "Next boot: gpu-power-prefs $( efivarIsIntel && echo "Intel (01)" || echo "absent or not Intel (firmware picks NVIDIA)" ), ${SERVICE} $( serviceEnabled && echo enabled || echo disabled )"
+    if ! efivarIsIntel && serviceEnabled; then
+        logError "${SERVICE} is enabled while the firmware boots on NVIDIA: it would power off the GPU that drives the display. Run nv-nvidia on"
+    fi
+}
+
+# NVIDIA drives the display: the firmware default when the variable is absent. Service goes first so the GPU is never powered off by mistake.
+function nvidiaOn {
+    runAsSudo "systemctl disable ${SERVICE}"
+    if serviceEnabled; then
+        logError "${SERVICE} is still enabled, aborting before touching the EFI variable"
+        exit 1
+    fi
+    if [ -e "${EFIVAR}" ]; then
+        runAsSudo "chattr -i ${EFIVAR}; rm ${EFIVAR}"
+    fi
+    if [ -e "${EFIVAR}" ]; then
+        logError "Could not remove ${EFIVAR}"
+        exit 1
+    fi
+    logInfo "NVIDIA mode set: HDMI works, higher temperature and power use"
+    logInfo "Reboot to apply. If the monitor stays disconnected: echo detect | sudo tee /sys/class/drm/card1-HDMI-A-1/status"
+}
+
+# Intel drives the display: the variable goes first so the service is never enabled while NVIDIA still drives it
+function nvidiaOff {
+    if ! efivarIsIntel; then
+        runAsSudo "[ ! -e ${EFIVAR} ] || chattr -i ${EFIVAR}; printf \"\\x07\\x00\\x00\\x00\\x01\\x00\\x00\\x00\" > ${EFIVAR}"
+    fi
+    if ! efivarIsIntel; then
+        logError "Could not write ${EFIVAR} (expected bytes ${EFIVAR_INTEL_HEX}), aborting before enabling ${SERVICE}"
+        exit 1
+    fi
+    runAsSudo "systemctl enable ${SERVICE}"
+    logInfo "Intel mode set: NVIDIA is powered off after boot, HDMI does not work"
+    logInfo "Reboot to apply, then check: glxinfo -B | grep renderer (expected Intel Iris Pro P5200)"
+}
+
+case "${1:-}" in
+    on) nvidiaOn ;;
+    off) nvidiaOff ;;
+    status) status ;;
+    *)
+        logError "Usage: nv-nvidia on|off|status"
+        exit 1
+        ;;
+esac
+[ "${1}" = "status" ] || status
