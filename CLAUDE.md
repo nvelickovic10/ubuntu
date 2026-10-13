@@ -70,3 +70,4 @@ Runs `$XDG_RUNTIME_DIR/run.sh`, the single script Claude Code overwrites for com
 @system-notes/macbook-setup.md
 @system-notes/analysis.md
 @system-notes/extensions.md
+@system-notes/claude-config.md

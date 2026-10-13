@@ -1,4 +1,4 @@
-# Ekstenzije
+# Ekstenzije (GNOME)
 
 ## Battery Watts (GNOME ekstenzija `battery-watts@local`)
 
@@ -20,19 +20,3 @@ Dodaje stavku **Hibernate** u sistemski power meni, odmah posle Suspend (klik zo
 - Fajlovi: `~/.local/share/gnome-shell/extensions/hibernate-menu@local/` (`metadata.json`, `extension.js`). Aktivacija: UUID u `org.gnome.shell enabled-extensions`; na Waylandu odjava/prijava.
 - Uključivanje/isključivanje cele hibernacije (ekstenzija, swap, resume konfiguracija): `nv-hibernate on|off`, vidi `macbook-setup.md` i `~/Documents/ubuntu/CLAUDE.md`.
 - Vraćanje: `gnome-extensions disable hibernate-menu@local`, obrisati direktorijum ekstenzije i `sudo rm /etc/polkit-1/rules.d/10-allow-hibernate.rules`.
-
-## Claude Code: podsetnici pri startu (SessionStart hook)
-
-Pri svakom startu i `--resume` prikazuje listu iz `~/.claude/CLAUDE.md` (sekcija „Reminder list“); ako je prazna, piše „Nema ništa.“
-
-- Skripta: `~/.claude/reminders-hook.py`; hook je u `~/.claude/settings.json` (`hooks.SessionStart`, matcher `startup|resume`).
-- Zamenjuje `cc` alias (obrisan iz `~/.bash_aliases`) i stari „reminders“ mod (`~/.claude/dev-mods/.../reminders`) sa `~/.claude/reminders.md`.
-- Vraćanje: ukloniti ključ `hooks` iz `~/.claude/settings.json` (ili vratiti `~/.claude/backups/settings.json.pre-reminders-hook`) i obrisati `~/.claude/reminders-hook.py`.
-
-## Claude Code: run-preview mod (traka iznad prompta)
-
-Traka „run.sh ready“ iznad prompta: hover preko dugmeta „Show script“ prikazuje sadržaj `$XDG_RUNTIME_DIR/run.sh` (do 30 linija), klik na njega ga ispisuje u transkript, „Copy run line“ kopira liniju `bash $XDG_RUNTIME_DIR/run.sh` (bez `!`, za običan terminal), „Delete script“ briše `$XDG_RUNTIME_DIR/run.sh` (bez potvrde). Miš (klik i hover) radi samo u fullscreen modu (`/tui fullscreen` ili `CLAUDE_CODE_NO_FLICKER=1`); u običnom modu dugmad i hover ne reaguju.
-
-- Fajlovi: `~/.claude/skills/run-preview/` (`.claude-plugin/plugin.json`, `hooks/hooks.json`, `hooks/register.tsx`, `types/index.d.ts` za stanje `rev` koje posle brisanja skripte pokreće ponovno iscrtavanje trake); Claude Code ga sam učitava iz skills foldera, u svakoj sesiji.
-- Radi samo u interaktivnom terminalu (u pozadinskim sesijama se traka ne iscrtava). Posle izmene: `/reload-plugins`.
-- Vraćanje: obrisati `~/.claude/skills/run-preview/`.
