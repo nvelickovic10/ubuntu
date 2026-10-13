@@ -2,6 +2,8 @@
 
 Beleške o izmenama sistema na ovom laptopu: šta je promenjeno, zašto i kako se vraća.
 
+**Beleške se bave isključivo Ubuntuom.** Drugi operativni sistemi na ovoj mašini (dual-boot) ne pominju se, osim ako korisnik to izričito ne zatraži.
+
 Sve naše ekstenzije (GNOME ekstenzije, Claude Code hookovi/modovi) beleže se u `extensions.md`, svaka u svom `##` odeljku (samo konačno stanje: šta radi, fajlovi, aktivacija, vraćanje).
 
 Rezultati svih analiza (potrošnja, popis softvera i slično) idu u `analysis.md`, svaka u svom `##` odeljku.
