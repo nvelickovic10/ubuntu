@@ -17,6 +17,14 @@ Miš (klik i hover) radi samo u fullscreen modu (`/tui fullscreen` ili `CLAUDE_C
 - Radi samo u interaktivnom terminalu (u pozadinskim sesijama se traka ne iscrtava) i kad je korisnik ispred mašine (zenity prozor). Posle izmene: `/reload-plugins`.
 - Vraćanje: obrisati `~/.claude/skills/run-preview/`.
 
+## Izlaz uživo za run.sh (`nv-live`)
+
+Izlaz skripte pokrenute dugmetom „Accept“ ili preko `!` vidi se tek kad se skripta završi. Zato je `run.sh` tanak omotač oko `nv-live` (`~/Documents/ubuntu/bin/nv-live`, opis u `~/Documents/ubuntu/CLAUDE.md`): `nv-live "<naslov>" <<'EOF' ... EOF`. Telo skripte radi u prozoru GNOME Terminala (izlaz uživo, sudo lozinka se kuca tamo), uz upis u `$XDG_RUNTIME_DIR/run.log` i `run.rc`; na kraju prozor čeka Enter, pa se log i exit kod vraćaju Claude-u.
+
+- Pravilo za Claude-a je u `~/.claude/CLAUDE.md` (odeljak „Commands for the user to run“).
+- Zavisnosti: `gnome-terminal` i otvorena grafička sesija.
+- Vraćanje: obrisati `nv-live` i stavku iz `~/.claude/CLAUDE.md`; `run.sh` opet piše telo direktno.
+
 ## Sudo preko grafičkog prozora za lozinku (askpass)
 
 Claude Code nema terminal, pa `sudo` ne može sam da pita za lozinku. Rešenje: `sudo -A` pokreće helper koji na ekranu otvara `zenity` prozor; lozinku ukucava korisnik, Claude je ne vidi.

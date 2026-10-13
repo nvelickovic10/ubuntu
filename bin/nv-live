@@ -1,0 +1,24 @@
+#!/bin/bash
+# Runs a script body (read from stdin) in a GNOME Terminal window so its output is live
+
+SCRIPT_DESC="Usage: nv-live [title] < script-body (runs the body in a terminal window, prints the log and exits with its status)"
+TITLE="${1:-nv-live}"
+BODY="${XDG_RUNTIME_DIR:-}/run-body.sh"
+LOG="${XDG_RUNTIME_DIR:-}/run.log"
+RC="${XDG_RUNTIME_DIR:-}/run.rc"
+
+if [ -z "${XDG_RUNTIME_DIR:-}" ]; then
+    echo "ERROR: XDG_RUNTIME_DIR is not set" >&2
+    exit 1
+fi
+
+rm -f "${LOG}" "${RC}"
+cat > "${BODY}"
+chmod 700 "${BODY}"
+
+gnome-terminal --wait --maximize --title="${TITLE}" -- bash -c \
+    'bash "$0" 2>&1 | tee "$1"; echo "${PIPESTATUS[0]}" > "$2"; read -rp "Done. Press Enter to close. "' \
+    "${BODY}" "${LOG}" "${RC}"
+
+cat "${LOG}"
+exit "$(cat "${RC}")"

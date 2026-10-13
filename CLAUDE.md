@@ -64,6 +64,10 @@ Note: `set -eu` is enabled only after the docker step, so a docker failure does 
 
 Runs `$XDG_RUNTIME_DIR/run.sh`, the single script Claude Code overwrites for commands the user has to run (see the global CLAUDE.md). Takes no options, prints an error and exits 1 if the file is missing, otherwise exits with the script's own status. It replaces typing `bash $XDG_RUNTIME_DIR/run.sh` by hand.
 
+## nv-live
+
+Runs a script body read from stdin in a maximized GNOME Terminal window (`--maximize`), so the output is live (`run.sh` run through the run-preview "Accept" button or `!` only shows output after it finishes). Usage: `nv-live "<title>" <<'EOF' ... EOF`. The body is saved to `$XDG_RUNTIME_DIR/run-body.sh` and run with `bash`, its output goes to the window and is `tee`d to `$XDG_RUNTIME_DIR/run.log`, the exit status to `run.rc`. The window waits for Enter at the end. After it closes, `nv-live` prints the log and exits with the body's status. This is the standard shape of `run.sh` (see the global CLAUDE.md).
+
 ## System notes
 
 @system-notes/README.md
