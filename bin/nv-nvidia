@@ -4,7 +4,8 @@
 SCRIPT_DESC="Usage: nv-nvidia on|off|status (on: NVIDIA drives the display, HDMI works; off: Intel drives it, NVIDIA is powered off; both need a reboot)"
 commons_dir="$( cd "$(dirname "${BASH_SOURCE[0]}")" ; pwd -P )/common"
 EFIVAR="/sys/firmware/efi/efivars/gpu-power-prefs-fa4ce28d-b62f-4c99-9cc3-6815686e30f9"
-EFIVAR_INTEL_HEX="07000000 01000000"
+VALUE_NVIDIA="00"
+VALUE_INTEL="01"
 SERVICE="nvidia-off.service"
 
 # Include common functions
@@ -13,13 +14,10 @@ SERVICE="nvidia-off.service"
 # Include root functions
 . ${commons_dir}/sudoUtil.sh
 
-function efivarIsIntel {
-    [ -e "${EFIVAR}" ] && [ "$(od -An -tx1 -v < "${EFIVAR}" 2>/dev/null | tr -d ' \n')" = "${EFIVAR_INTEL_HEX// /}" ]
-}
-
-# The variable cannot be read back until the next boot (od/cat fail with EINVAL), so a fresh write stays unverified
-function efivarUnreadable {
-    [ -e "${EFIVAR}" ] && ! od -An -tx1 -v < "${EFIVAR}" > /dev/null 2>&1
+# Prints the variable as hex (attributes + value), or nothing when it cannot be read.
+# After a boot the variable is not listed at all, and right after a write it exists but reads fail with EINVAL until the next boot.
+function efivarHex {
+    { od -An -tx1 -v < "${EFIVAR}" | tr -d ' \n'; } 2>/dev/null
 }
 
 function serviceEnabled {
@@ -39,46 +37,52 @@ function currentDisplayDriver {
 }
 
 function status {
-    local DRIVER
+    local DRIVER HEX
     DRIVER=$(currentDisplayDriver)
+    HEX=$(efivarHex)
     logInfo "Now: display on ${DRIVER} ($( [ "${DRIVER}" = "nouveau" ] && echo NVIDIA || echo Intel ))"
-    logInfo "gpu-power-prefs: $( efivarIsIntel && echo "Intel (01)" || { efivarUnreadable && echo "present but unreadable (written since last boot)" || echo "not visible (also the case after a boot on Intel, so judge by the running display)"; } )"
+    logInfo "gpu-power-prefs: ${HEX:-not readable (normal after a boot and right after a write; the firmware keeps it, so judge by the running display)}"
     logInfo "${SERVICE}: $( serviceEnabled && echo enabled || echo disabled )"
     if [ "${DRIVER}" = "nouveau" ] && serviceEnabled; then
         logError "${SERVICE} is enabled while NVIDIA drives the display: it must not be. Run nv-nvidia on"
     fi
 }
 
-# NVIDIA drives the display: the firmware default when the variable is absent. Service goes first so the GPU is never powered off by mistake.
+# Writes the display preference the firmware reads at boot: 01 = Intel (integrated), 00 = NVIDIA (discrete).
+# Deleting the variable does not work (it is not visible after a boot, though the firmware still holds it), so both modes write a value.
+function writePrefs {
+    local VALUE="$1"
+    local EXPECTED="07000000${VALUE}000000"
+    local HEX
+    # Remove any leftover (even broken) variable, then write attributes + value with tee (the way that worked on 2026-10-08)
+    runAsSudo "if [ -e ${EFIVAR} ]; then chattr -i ${EFIVAR}; rm ${EFIVAR}; fi; printf \"\\x07\\x00\\x00\\x00\\x${VALUE}\\x00\\x00\\x00\" | tee ${EFIVAR} > /dev/null"
+    if [ ! -e "${EFIVAR}" ]; then
+        logError "Could not write ${EFIVAR}"
+        exit 1
+    fi
+    HEX=$(efivarHex)
+    if [ -n "${HEX}" ] && [ "${HEX}" != "${EXPECTED}" ]; then
+        logError "${EFIVAR##*/} reads ${HEX}, expected ${EXPECTED}"
+        exit 1
+    fi
+    logInfo "Wrote ${EFIVAR##*/} = ${EXPECTED} (it cannot be read back before the next reboot)"
+}
+
+# Service goes first so the GPU that drives the display is never powered off by mistake.
 function nvidiaOn {
     runAsSudo "systemctl disable ${SERVICE}"
     if serviceEnabled; then
         logError "${SERVICE} is still enabled, aborting before touching the EFI variable"
         exit 1
     fi
-    if [ -e "${EFIVAR}" ]; then
-        runAsSudo "chattr -i ${EFIVAR}; rm ${EFIVAR}"
-    fi
-    if [ -e "${EFIVAR}" ]; then
-        logError "Could not remove ${EFIVAR}"
-        exit 1
-    fi
+    writePrefs "${VALUE_NVIDIA}"
     logInfo "NVIDIA mode set: HDMI works, higher temperature and power use"
-    logInfo "Reboot to apply. If the monitor stays disconnected: echo detect | sudo tee /sys/class/drm/card1-HDMI-A-1/status"
+    logInfo "Reboot to apply, then check: nv-nvidia status (display on nouveau). If the monitor stays disconnected: echo detect | sudo tee /sys/class/drm/card1-HDMI-A-1/status"
 }
 
-# Intel drives the display: the variable goes first so the service is never enabled while NVIDIA still drives it
+# The variable goes first so the service is never enabled while NVIDIA still drives the display
 function nvidiaOff {
-    if ! efivarIsIntel; then
-        # Remove any leftover (even broken) variable, then write attributes + value with tee (the way that worked on 2026-10-08)
-        runAsSudo "if [ -e ${EFIVAR} ]; then chattr -i ${EFIVAR}; rm ${EFIVAR}; fi; printf \"\\x07\\x00\\x00\\x00\\x01\\x00\\x00\\x00\" | tee ${EFIVAR} > /dev/null"
-    fi
-    if efivarUnreadable; then
-        logInfo "${EFIVAR##*/} exists but cannot be read back before reboot (the same as on 2026-10-08); verify with nv-nvidia status after reboot"
-    elif ! efivarIsIntel; then
-        logError "Could not write ${EFIVAR} (expected bytes ${EFIVAR_INTEL_HEX}), aborting before enabling ${SERVICE}"
-        exit 1
-    fi
+    writePrefs "${VALUE_INTEL}"
     runAsSudo "systemctl enable ${SERVICE}"
     logInfo "Intel mode set: NVIDIA is powered off after boot, HDMI does not work"
     logInfo "Reboot to apply, then check: glxinfo -B | grep renderer (expected Intel Iris Pro P5200)"
