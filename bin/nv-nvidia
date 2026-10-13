@@ -36,14 +36,18 @@ function currentDisplayDriver {
     echo "unknown"
 }
 
+# With "pending" (called after on/off) the display still runs on the old GPU until the reboot, so the service check is skipped
 function status {
+    local PENDING="${1:-}"
     local DRIVER HEX
     DRIVER=$(currentDisplayDriver)
     HEX=$(efivarHex)
     logInfo "Now: display on ${DRIVER} ($( [ "${DRIVER}" = "nouveau" ] && echo NVIDIA || echo Intel ))"
     logInfo "gpu-power-prefs: ${HEX:-not readable (normal after a boot and right after a write; the firmware keeps it, so judge by the running display)}"
     logInfo "${SERVICE}: $( serviceEnabled && echo enabled || echo disabled )"
-    if [ "${DRIVER}" = "nouveau" ] && serviceEnabled; then
+    if [ -n "${PENDING}" ]; then
+        logInfo "Reboot pending: the display changes only after the next boot"
+    elif [ "${DRIVER}" = "nouveau" ] && serviceEnabled; then
         logError "${SERVICE} is enabled while NVIDIA drives the display: it must not be. Run nv-nvidia on"
     fi
 }
@@ -97,4 +101,4 @@ case "${1:-}" in
         exit 1
         ;;
 esac
-[ "${1}" = "status" ] || status
+[ "${1}" = "status" ] || status pending
