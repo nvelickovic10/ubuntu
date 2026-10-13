@@ -12,10 +12,17 @@ Pri svakom startu i `--resume` prikazuje listu iz `~/.claude/CLAUDE.md` (sekcija
 
 ## run-preview mod (traka iznad prompta)
 
-Traka „run.sh ready“ iznad prompta: hover preko dugmeta „Show script“ prikazuje sadržaj `$XDG_RUNTIME_DIR/run.sh` (do 30 linija), klik na njega ga ispisuje u transkript, „Copy run line“ kopira liniju `bash $XDG_RUNTIME_DIR/run.sh` (bez `!`, za običan terminal), „Delete script“ briše `$XDG_RUNTIME_DIR/run.sh` (bez potvrde). Miš (klik i hover) radi samo u fullscreen modu (`/tui fullscreen` ili `CLAUDE_CODE_NO_FLICKER=1`); u običnom modu dugmad i hover ne reaguju.
+Traka „run.sh ready“ iznad prompta za `$XDG_RUNTIME_DIR/run.sh`, skriptu koju Claude piše kad korisnik treba nešto da pokrene (sudo). Dugmad:
 
-- Fajlovi: `~/.claude/skills/run-preview/` (`.claude-plugin/plugin.json`, `hooks/hooks.json`, `hooks/register.tsx`, `types/index.d.ts` za stanje `rev` koje posle brisanja skripte pokreće ponovno iscrtavanje trake); Claude Code ga sam učitava iz skills foldera, u svakoj sesiji.
-- Radi samo u interaktivnom terminalu (u pozadinskim sesijama se traka ne iscrtava). Posle izmene: `/reload-plugins`.
+- „Show script“: hover prikazuje sadržaj skripte (do 30 linija), klik ga ispisuje u transkript.
+- „Accept“: pokreće skriptu (do 10 minuta) tako da svaki `sudo` u njoj postaje `sudo -A`, pa se lozinka traži u zenity prozoru (`~/.local/bin/sudo-askpass`, vidi odeljak ispod). Posle izvršenja skripta se briše, a Claude dobija poruku sa exit kodom, stdout i stderr (poslednjih 4000 znakova) i nastavlja sam. Dok radi, traka piše „running...“.
+- „Decline“: briše skriptu (bez potvrde) i javlja Claude-u da je odbijena i da je ne pokreće.
+- „Copy run line“: kopira `bash $XDG_RUNTIME_DIR/run.sh` (bez `!`, za običan terminal).
+
+Miš (klik i hover) radi samo u fullscreen modu (`/tui fullscreen` ili `CLAUDE_CODE_NO_FLICKER=1`); u običnom modu dugmad i hover ne reaguju. Accept je potvrđen u radu: zenity prozor se otvara i izlaz stiže do Claude-a.
+
+- Fajlovi: `~/.claude/skills/run-preview/` (`.claude-plugin/plugin.json`, `hooks/hooks.json`, `hooks/register.tsx`, `types/index.d.ts` za stanje `rev` (ponovno iscrtavanje trake posle brisanja skripte) i `busy` (skripta trenutno radi)); Claude Code ga sam učitava iz skills foldera, u svakoj sesiji.
+- Radi samo u interaktivnom terminalu (u pozadinskim sesijama se traka ne iscrtava) i kad je korisnik ispred mašine (zenity prozor). Posle izmene: `/reload-plugins`.
 - Vraćanje: obrisati `~/.claude/skills/run-preview/`.
 
 ## Sudo preko grafičkog prozora za lozinku (askpass)
