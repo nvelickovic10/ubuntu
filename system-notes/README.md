@@ -11,4 +11,4 @@ Rezultati svih analiza (potrošnja, popis softvera i slično) idu u `analysis.md
 - [macbook-setup.md](macbook-setup.md) — kritična pravila (ne diraj) i izmene sa vraćanjem: grafika (dva režima, `nv-nvidia`) i hlađenje, potrošnja i ventilatori, hibernacija (`nv-hibernate`), zram swap, kamera, logind, Bluetooth, turbo
 - [analysis.md](analysis.md) — rezultati analiza: potrošnja baterije, trajanje boota, popis instaliranog softvera i čišćenje (sa vraćanjem)
 - [extensions.md](extensions.md) — GNOME ekstenzije `battery-watts` i `hibernate-menu`
-- [claude-config.md](claude-config.md) — Claude Code: SessionStart hook za podsetnike, run-preview mod, sudo preko grafičkog prozora za lozinku (askpass), isključeni claude.ai konektori, health-bars mod
+- [claude-config.md](claude-config.md) — Claude Code: run-preview mod, sudo preko grafičkog prozora za lozinku (askpass), isključeni claude.ai konektori, health-bars mod

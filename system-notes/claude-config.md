@@ -2,14 +2,6 @@
 
 Naše izmene Claude Code-a (hookovi, modovi, permission pravila, helperi), svaka u svom `##` odeljku; samo konačno stanje.
 
-## Podsetnici pri startu (SessionStart hook)
-
-Pri svakom startu i `--resume` prikazuje listu iz `~/.claude/CLAUDE.md` (sekcija „Reminder list“); ako je prazna, piše „Nema ništa.“
-
-- Skripta: `~/.claude/reminders-hook.py`; hook je u `~/.claude/settings.json` (`hooks.SessionStart`, matcher `startup|resume`).
-- Zamenjuje `cc` alias (obrisan iz `~/.bash_aliases`) i stari „reminders“ mod (`~/.claude/dev-mods/.../reminders`) sa `~/.claude/reminders.md`.
-- Vraćanje: ukloniti ključ `hooks` iz `~/.claude/settings.json` (ili vratiti `~/.claude/backups/settings.json.pre-reminders-hook`) i obrisati `~/.claude/reminders-hook.py`.
-
 ## run-preview mod (traka iznad prompta)
 
 Traka „run.sh ready“ iznad prompta za `$XDG_RUNTIME_DIR/run.sh`, skriptu koju Claude piše kad korisnik treba nešto da pokrene (sudo). Dugmad:
@@ -49,7 +41,13 @@ Jedan red iznad prompta sa trakama `SESSION` (5h prozor), `WEEKLY` (7d prozor) i
 - **SESSION i WEEKLY** pokazuju i vreme do reseta. Ne crtaju se dok nema podataka (van pretplate ili pre prvog odgovora). Posle `/clear` i novog starta ostaju poslednje poznate vrednosti (čuvaju se u `$.store` pod ključem `limits`, jer se atom session stanja prazni na `/clear`); prozor čije je vreme reseta prošlo crta se kao nepotrošen.
 - **CONTEXT** je uvek tu. Pored procenta stoji popunjenost i veličina prozora (npr. `71k/1M`; bez čitanja `0k/1M`), pa zatamnjeno model i effort (npr. `sonnet-5-5 · high`). Model se čita pri svakom iscrtavanju (prati `/model`). Effort se beleži iz poslednjeg zahteva glavne petlje (`turn.step`, bez subagenata; korak bez effort-a ništa ne menja) i čuva u `$.store` pod ključem `effort` zajedno sa modelom, pa ostaje posle `/clear` ili starta; važi samo dok je model isti, a nema ga za model bez effort-a ili dok ništa nije zabeleženo. Dok nema podatka (nova sesija, posle `/compact`) traka pokazuje 100%.
 - **Podaci:** `session.measure` hook (`rateLimits`, `context.percent`), početno stanje iz `$.session.usage()` pri `session.start`.
-- **Podsetnici:** skroz desno u istom redu je `⏰ N`, broj podsetnika iz liste u `~/.claude/CLAUDE.md` (sekcija „Reminder list“, ista koju čita SessionStart hook; čita se pri svakom iscrtavanju). Klik na broj (toggle) otvara/zatvara celu listu iznad reda, poravnatu udesno. Ispred svakog podsetnika je dugme „✕“: klik ga briše iz `~/.claude/CLAUDE.md` (fajl se pri kliku ponovo čita) i prikazuje toast; kad se obriše poslednji, upisuje se `- (empty)`. Klik radi samo u fullscreen modu.
+- **Podsetnici:** skroz desno u istom redu je `⏰ N`, broj podsetnika iz liste u `~/.claude/CLAUDE.md` (sekcija „Reminder list“, nema više SessionStart hooka, podsetnici se prikazuju samo ovde; čita se pri svakom iscrtavanju). Klik na broj (toggle) otvara/zatvara celu listu iznad reda, poravnatu udesno. Ispred svakog podsetnika je dugme „✕“: klik ga briše iz `~/.claude/CLAUDE.md` (fajl se pri kliku ponovo čita) i prikazuje toast; kad se obriše poslednji, upisuje se `- (empty)`. Klik radi samo u fullscreen modu.
 - **Agent za podsetnik:** pored „✕“ je dugme „▶“. Klik pokreće pozadinsku sesiju (`claude --bg --name "rem: <tekst>" "<tekst podsetnika>"`, vidi se u Agent view-u) i pamti vezu podsetnik → id sesije u `$.store` pod ključem `reminderAgents` (preživljava restart). Posle toga dugme pokazuje stanje sesije kao Agent view: spinner dok radi, `✓` završena, `✗` pala, `●` ostalo (npr. čeka unos), `○` još nepoznato; kad sesije više nema (`claude rm`), opet „▶“ (klik pravi novog agenta). Klik na dugme sa stanjem samo prikazuje toast sa stanjem i prvim redom poslednjeg odgovora (iz transkripta `~/.claude/projects/<cwd>/<sessionId>.jsonl`); ništa se ne otvara ni kopira. Stanja se čitaju sa `claude agents --json --all` na 3 s, ali samo dok je lista podsetnika otvorena ili neka sesija radi (i jednom pri otvaranju liste); spinner se pomera na 120 ms samo dok lista stoji otvorena i sesija radi. Plugin ne može da prebaci ekran u drugu sesiju, pa se u nju ulazi preko `claude attach <id>` ili ← (Agent view). `claude --bg` radi samo u poverenom folderu: pokreće se u folderu sesije, a ako nije poveren, u `~/Documents`.
 - **Fajlovi:** `~/.claude/skills/health-bars/` (`.claude-plugin/plugin.json`, `hooks/register.tsx`, `types/index.d.ts`, `tests/band.test.ts`); Claude Code ga sam učitava iz skills foldera, u svakoj sesiji. Testovi: `claude plugin test <folder>`; posle izmene: `/reload-plugins`.
 - **Vraćanje:** obrisati `~/.claude/skills/health-bars/`.
+
+## Prečica za skrivanje trake iznad prompta (keybindings)
+
+`~/.claude/keybindings.json` vezuje `ctrl+x a` (kontekst `Chat`) na akciju `abovePrompt:toggle`, pa skriva/prikazuje health-bars traku. Podrazumevana `ctrl+x ctrl+a` i dalje radi. Jednotasterska `ctrl+b` je probana, ali se traka tada ne iscrtava dok se ne počne kucati (chord prečice rade ispravno), pa je zamenjena chordom.
+
+- Vraćanje: obrisati `~/.claude/keybindings.json`.
