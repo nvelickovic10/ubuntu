@@ -42,9 +42,10 @@ function status {
     local DRIVER
     DRIVER=$(currentDisplayDriver)
     logInfo "Now: display on ${DRIVER} ($( [ "${DRIVER}" = "nouveau" ] && echo NVIDIA || echo Intel ))"
-    logInfo "Next boot: gpu-power-prefs $( efivarIsIntel && echo "Intel (01)" || { efivarUnreadable && echo "present but unreadable (written since last boot, check after reboot)" || echo "absent or not Intel (firmware picks NVIDIA)"; } ), ${SERVICE} $( serviceEnabled && echo enabled || echo disabled )"
-    if ! efivarIsIntel && ! efivarUnreadable && serviceEnabled; then
-        logError "${SERVICE} is enabled while the firmware boots on NVIDIA: it would power off the GPU that drives the display. Run nv-nvidia on"
+    logInfo "gpu-power-prefs: $( efivarIsIntel && echo "Intel (01)" || { efivarUnreadable && echo "present but unreadable (written since last boot)" || echo "not visible (also the case after a boot on Intel, so judge by the running display)"; } )"
+    logInfo "${SERVICE}: $( serviceEnabled && echo enabled || echo disabled )"
+    if [ "${DRIVER}" = "nouveau" ] && serviceEnabled; then
+        logError "${SERVICE} is enabled while NVIDIA drives the display: it must not be. Run nv-nvidia on"
     fi
 }
 
