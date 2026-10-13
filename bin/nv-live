@@ -16,7 +16,7 @@ rm -f "${LOG}" "${RC}"
 cat > "${BODY}"
 chmod 700 "${BODY}"
 
-gnome-terminal --wait --maximize --title="${TITLE}" -- bash -c \
+gnome-terminal --wait --maximize --title="${TITLE}" -- bash -ic \
     'bash "$0" 2>&1 | tee "$1"; echo "${PIPESTATUS[0]}" > "$2"; read -rp "Done. Press Enter to close. "' \
     "${BODY}" "${LOG}" "${RC}"
 

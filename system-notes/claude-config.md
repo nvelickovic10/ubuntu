@@ -19,7 +19,7 @@ Miš (klik i hover) radi samo u fullscreen modu (`/tui fullscreen` ili `CLAUDE_C
 
 ## Izlaz uživo za run.sh (`nv-live`)
 
-Izlaz skripte pokrenute dugmetom „Accept“ ili preko `!` vidi se tek kad se skripta završi. Zato je `run.sh` tanak omotač oko `nv-live` (`~/Documents/ubuntu/bin/nv-live`, opis u `~/Documents/ubuntu/CLAUDE.md`): `nv-live "<naslov>" <<'EOF' ... EOF`. Telo skripte radi u prozoru GNOME Terminala (izlaz uživo, sudo lozinka se kuca tamo), uz upis u `$XDG_RUNTIME_DIR/run.log` i `run.rc`; na kraju prozor čeka Enter, pa se log i exit kod vraćaju Claude-u.
+Izlaz skripte pokrenute dugmetom „Accept“ ili preko `!` vidi se tek kad se skripta završi. Zato je `run.sh` tanak omotač oko `nv-live` (`~/Documents/ubuntu/bin/nv-live`, opis u `~/Documents/ubuntu/CLAUDE.md`): `nv-live "<naslov>" <<'EOF' ... EOF`. Telo skripte radi u maksimizovanom prozoru GNOME Terminala (`--maximize`, podrazumevani profil, spoljašnji shell je interaktivni `bash -ic`, a telo skripte radi neinteraktivno; izlaz uživo, sudo lozinka se kuca tamo), uz upis u `$XDG_RUNTIME_DIR/run.log` i `run.rc`; na kraju prozor čeka Enter, pa se log i exit kod vraćaju Claude-u.
 
 - Pravilo za Claude-a je u `~/.claude/CLAUDE.md` (odeljak „Commands for the user to run“). To je jedini izvor pravila (memory fajl je obrisan da ne bi bilo dve verzije): jedan `run.sh`, omotač `nv-live`, komentar iznad svake linije, a odgovor mora da sadrži opis, rečenicu sa `bash $XDG_RUNTIME_DIR/run.sh` (bez `!`) i celu skriptu u ```bash bloku.
 - Zavisnosti: `gnome-terminal` i otvorena grafička sesija.
