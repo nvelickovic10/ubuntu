@@ -55,9 +55,9 @@ Note: `set -eu` is enabled only after the docker step, so a docker failure does 
 `nv-nvidia on|off|status` chooses which GPU drives the internal display from boot (details and the A/B mode table in `system-notes/macbook-setup.md`). Both switches need a reboot; `status` is read-only and compares the running display driver (the GPU of the connected eDP connector) with what is configured for the next boot.
 
 - `on` (NVIDIA, HDMI works): `systemctl disable nvidia-off.service` first, then removes the `gpu-power-prefs` EFI variable (`chattr -i` + `rm`).
-- `off` (Intel, NVIDIA powered off): writes the variable (`07 00 00 00 01 00 00 00`) and re-reads it, then `systemctl enable nvidia-off.service`.
+- `off` (Intel, NVIDIA powered off): deletes any leftover variable, writes it with `printf … | tee` (`07 00 00 00 01 00 00 00`), then `systemctl enable nvidia-off.service`. The fresh variable cannot be read back before a reboot (`od`/`cat` give `Invalid argument`, file size 4), so `off` only checks that it exists; `status` shows it as "present but unreadable" until the next boot.
 - The order is deliberate: the service must never be enabled while the firmware boots on NVIDIA (it would power off the GPU that drives the screen), so `on` stops the service first and `off` enables it only after the variable is verified. Both abort with an error if a step did not take effect. `status` prints an error for that dangerous combination.
-- Both modes are idempotent. `off` was not run on this machine yet (only the write format was checked against the earlier `xxd` of the variable).
+- Both modes are idempotent. `off` was run on 2026-10-13 (variable written, service enabled); the result after reboot is still to be confirmed.
 
 ## nv-claude-sh
 

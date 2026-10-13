@@ -37,7 +37,7 @@ Ključ svega je koja grafika vozi **interni ekran od samog paljenja**. To bira f
 **Skripta:** `nv-nvidia on|off|status` radi oba prelaza ispod (`on` = B, `off` = A, `status` samo prikazuje stanje); posle `on`/`off` sledi restart. Ručni koraci su zapisani da se vidi šta skripta radi.
 
 **Prelazak B → A (Intel, hladnije):**
-1. Upisati promenljivu: `printf '\x07\x00\x00\x00\x01\x00\x00\x00' | sudo tee /sys/firmware/efi/efivars/gpu-power-prefs-fa4ce28d-b62f-4c99-9cc3-6815686e30f9 >/dev/null` (format viđen u ranijem `xxd`; upis nije ponovo proveren).
+1. Upisati promenljivu: `printf '\x07\x00\x00\x00\x01\x00\x00\x00' | sudo tee /sys/firmware/efi/efivars/gpu-power-prefs-fa4ce28d-b62f-4c99-9cc3-6815686e30f9 >/dev/null` (posle upisa se promenljiva ne može pročitati do restarta: `od`/`cat` daju `Invalid argument`, fajl ima 4 bajta; tako je bilo i 2026-10-08, pa se ishod vidi tek posle restarta).
 2. `sudo systemctl enable nvidia-off.service`.
 3. Restart; proveriti kao u tabeli (kolona A).
 

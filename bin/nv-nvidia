@@ -14,7 +14,12 @@ SERVICE="nvidia-off.service"
 . ${commons_dir}/sudoUtil.sh
 
 function efivarIsIntel {
-    [ -e "${EFIVAR}" ] && [ "$(od -An -tx1 -v < "${EFIVAR}" | tr -d ' \n')" = "${EFIVAR_INTEL_HEX// /}" ]
+    [ -e "${EFIVAR}" ] && [ "$(od -An -tx1 -v < "${EFIVAR}" 2>/dev/null | tr -d ' \n')" = "${EFIVAR_INTEL_HEX// /}" ]
+}
+
+# The variable cannot be read back until the next boot (od/cat fail with EINVAL), so a fresh write stays unverified
+function efivarUnreadable {
+    [ -e "${EFIVAR}" ] && ! od -An -tx1 -v < "${EFIVAR}" > /dev/null 2>&1
 }
 
 function serviceEnabled {
@@ -37,8 +42,8 @@ function status {
     local DRIVER
     DRIVER=$(currentDisplayDriver)
     logInfo "Now: display on ${DRIVER} ($( [ "${DRIVER}" = "nouveau" ] && echo NVIDIA || echo Intel ))"
-    logInfo "Next boot: gpu-power-prefs $( efivarIsIntel && echo "Intel (01)" || echo "absent or not Intel (firmware picks NVIDIA)" ), ${SERVICE} $( serviceEnabled && echo enabled || echo disabled )"
-    if ! efivarIsIntel && serviceEnabled; then
+    logInfo "Next boot: gpu-power-prefs $( efivarIsIntel && echo "Intel (01)" || { efivarUnreadable && echo "present but unreadable (written since last boot, check after reboot)" || echo "absent or not Intel (firmware picks NVIDIA)"; } ), ${SERVICE} $( serviceEnabled && echo enabled || echo disabled )"
+    if ! efivarIsIntel && ! efivarUnreadable && serviceEnabled; then
         logError "${SERVICE} is enabled while the firmware boots on NVIDIA: it would power off the GPU that drives the display. Run nv-nvidia on"
     fi
 }
@@ -64,9 +69,12 @@ function nvidiaOn {
 # Intel drives the display: the variable goes first so the service is never enabled while NVIDIA still drives it
 function nvidiaOff {
     if ! efivarIsIntel; then
-        runAsSudo "[ ! -e ${EFIVAR} ] || chattr -i ${EFIVAR}; printf \"\\x07\\x00\\x00\\x00\\x01\\x00\\x00\\x00\" > ${EFIVAR}"
+        # Remove any leftover (even broken) variable, then write attributes + value with tee (the way that worked on 2026-10-08)
+        runAsSudo "if [ -e ${EFIVAR} ]; then chattr -i ${EFIVAR}; rm ${EFIVAR}; fi; printf \"\\x07\\x00\\x00\\x00\\x01\\x00\\x00\\x00\" | tee ${EFIVAR} > /dev/null"
     fi
-    if ! efivarIsIntel; then
+    if efivarUnreadable; then
+        logInfo "${EFIVAR##*/} exists but cannot be read back before reboot (the same as on 2026-10-08); verify with nv-nvidia status after reboot"
+    elif ! efivarIsIntel; then
         logError "Could not write ${EFIVAR} (expected bytes ${EFIVAR_INTEL_HEX}), aborting before enabling ${SERVICE}"
         exit 1
     fi
