@@ -19,14 +19,14 @@ Trenutno **14,2 s** (2,0 s kernel + 12,2 s userspace; pre izmene 23,6 s). Uzrok 
 **apt (ručno instalirano):**
 - Razvoj: `git`, `build-essential`, `gcc`, `g++`, `nasm`, `pkg-config`, `checkinstall`, `dkms`, `code` (.deb), `openjdk-17-jdk-headless`, `python-is-python3`, `pipx`, `docker-ce` + `containerd.io`, `mongodb-mongosh`, `pgadmin4-desktop`, `xvfb`, `adb`
 - Hardver i sistem: `broadcom-sta-dkms`, `mbpfan`, `lm-sensors`, `powertop`, `intel-gpu-tools`, `vainfo`, `mesa-utils`, `efibootmgr`, `gparted`, `kyocera-sane`, `stress`, `systemd-zram-generator`, `zenity`
-- Aplikacije: `google-chrome-stable`, `brave-browser`, `vlc`, `transmission`, `copyq`, `imagemagick`, `simple-scan`, `htop`, `autojump`, `screen`, `curl`
+- Aplikacije: `google-chrome-stable`, `vlc`, `transmission`, `copyq`, `imagemagick`, `simple-scan`, `htop`, `autojump`, `screen`, `curl`
 - Ostalo: `ibus-table-cangjie*`, `xfonts-cyrillic`, `xfonts-scalable`, `wbritish`
 
 **Snap:** ručno `cheese`, `remmina`, `solvespace` (ostaju namerno); ostalo uz sistem. Flatpak nije instaliran.
 
 **Van paketnih menadžera:** `/usr/local/bin` (`go`, `kubectl`, `helm`, `nosqlbooster4mongo`, `frontProxy`, `lowjson`; uz njih `go.new`, `helm3.15.2`, `kubectl1.30`), `~/.local/bin` (`claude`), `~/go/bin` (`gopls`, `golangci-lint`, `staticcheck`), npm globalno (`typescript`, `ts-node`), `~/.nvm`, `~/Android/Sdk`. Python je samo sistemski `python3.14`.
 
-**apt repozitorijumi** (`resolute`): `ubuntu.sources`, `ubuntu-esm-apps`, `ubuntu-esm-infra`, `google-chrome`, `vscode`, `docker.sources`, `pgadmin4.sources`, `brave-browser-release.sources` (Brave, instaliran 2026-10-13; ključ `/usr/share/keyrings/brave-browser-archive-keyring.gpg`; vraćanje: `sudo apt remove brave-browser brave-keyring && sudo rm /etc/apt/sources.list.d/brave-browser-release.sources /usr/share/keyrings/brave-browser-archive-keyring.gpg`).
+**apt repozitorijumi** (`resolute`): `ubuntu.sources`, `ubuntu-esm-apps`, `ubuntu-esm-infra`, `google-chrome`, `vscode`, `docker.sources`, `pgadmin4.sources`.
 
 Ponavljanje popisa: `apt-mark showmanual; snap list; apt list --installed 2>/dev/null | grep ',local\]'; ls /usr/local/bin /opt ~/.local/bin ~/go/bin`.
 
