@@ -12,13 +12,35 @@ if [ -z "${XDG_RUNTIME_DIR:-}" ]; then
     exit 1
 fi
 
-rm -f "${LOG}" "${RC}"
+PIDF="${XDG_RUNTIME_DIR}/run.pid"
+
+rm -f "${LOG}" "${RC}" "${PIDF}"
 cat > "${BODY}"
 chmod 700 "${BODY}"
 
-gnome-terminal --wait --maximize --title="${TITLE}" -- bash -ic \
-    'bash "$0" 2>&1 | tee "$1"; echo "${PIPESTATUS[0]}" > "$2"; read -rp "Done. Press Enter to close. "' \
-    "${BODY}" "${LOG}" "${RC}"
+# The inner shell records its PID so a closed window is noticed within a second
+# (gnome-terminal --wait is not reliable for that)
+gnome-terminal --maximize --title="${TITLE}" -- bash -ic \
+    'echo $$ > "$3"; bash "$0" 2>&1 | tee "$1"; echo "${PIPESTATUS[0]}" > "$2"; read -rp "Done. Press Enter to close. "' \
+    "${BODY}" "${LOG}" "${RC}" "${PIDF}" &
 
-cat "${LOG}"
+# Wait for the window to start (up to 20 s), then until the shell exits
+for _ in $(seq 1 40); do
+    [ -s "${PIDF}" ] && break
+    sleep 0.5
+done
+if [ ! -s "${PIDF}" ]; then
+    echo "ERROR: terminal window did not start (or was closed immediately)" >&2
+    exit 1
+fi
+PID="$(cat "${PIDF}")"
+while kill -0 "${PID}" 2>/dev/null; do
+    sleep 0.5
+done
+
+[ -f "${LOG}" ] && cat "${LOG}"
+if [ ! -s "${RC}" ]; then
+    echo "ERROR: terminal window was closed before the script finished (no exit status)" >&2
+    exit 130
+fi
 exit "$(cat "${RC}")"
