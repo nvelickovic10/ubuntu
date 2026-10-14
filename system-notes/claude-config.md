@@ -6,7 +6,7 @@ Naše izmene Claude Code-a (hookovi, modovi, permission pravila, helperi), svaka
 
 Traka „run.sh ready“ iznad prompta za `$XDG_RUNTIME_DIR/run.sh`, skriptu koju Claude piše kad korisnik treba nešto da pokrene (sudo). Dugmad:
 
-- Dugmeta „Show script“ nema (bilo je toggle panela sa bash highlightingom i popupom komentara, uklonjeno): Claude skriptu ispiše u odgovoru, u ```bash bloku sa komentarima, komentari su vidljivi (mod `script-hover` je probán i uklonjen).
+- „Show script“ / „Hide script“: toggle koji otvara/zatvara skriptu u docked panelu desno od razgovora (`$.ui.open`, id `run-script`, `columns` = pola širine terminala; engine može da ograniči širinu; skrol radi engine, točkić ili strelice dok panel ima fokus). Bash highlighting je u `register.tsx` (komentari zeleni i zatamnjeni, stringovi žuti, promenljive cijan, ključne reči magenta, flagovi plavi). Panel radi samo u fullscreen modu od 110 kolona, inače toast. Zatvara se i pri Accept/Decline (atom `open` prati hook `ui.close`). Claude i dalje ispisuje celu skriptu u odgovoru, u ```bash bloku sa komentarima.
 - „Accept“: pokreće skriptu (do 10 minuta) tako da svaki `sudo` u njoj postaje `sudo -A`, pa se lozinka traži u zenity prozoru (`~/.local/bin/sudo-askpass`, vidi odeljak ispod). Posle izvršenja skripta se briše, a Claude dobija poruku sa exit kodom, stdout i stderr (poslednjih 4000 znakova) i nastavlja sam. Dok radi, traka piše „running...“.
 - „Decline“: briše skriptu (bez potvrde) i javlja Claude-u da je odbijena i da je ne pokreće.
 - „Copy run line“: kopira `bash $XDG_RUNTIME_DIR/run.sh` (bez `!`, za običan terminal).
