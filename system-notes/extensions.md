@@ -21,3 +21,11 @@ Dodaje stavku **Hibernate** u sistemski power meni, odmah posle Suspend (klik zo
 - Fajlovi: `~/.local/share/gnome-shell/extensions/hibernate-menu@local/` (`metadata.json`, `extension.js`). Aktivacija: UUID u `org.gnome.shell enabled-extensions`; na Waylandu odjava/prijava.
 - Uključivanje/isključivanje cele hibernacije (ekstenzija, swap, resume konfiguracija): `nv-hibernate on|off`, vidi `macbook-setup.md` i `~/Documents/ubuntu/CLAUDE.md`.
 - Vraćanje: `gnome-extensions disable hibernate-menu@local`, obrisati direktorijum ekstenzije i `sudo rm /etc/polkit-1/rules.d/10-allow-hibernate.rules`.
+
+## Power Saver Frequency (GNOME ekstenzija `powersaver-freq@local`)
+
+Klizač u Quick Settings-u (meni gore desno) za maksimalnu CPU frekvenciju koja važi na profilu Power Saver: 800–2500 MHz u koracima od 100 MHz. Vrednost se vidi u zaglavlju podmenija klizača.
+
+- Ekstenzija samo upisuje kHz u `/var/lib/turbo-follow-profile/saver-max-khz` (direktorijum pripada korisniku `monrasta`, upis sa zakašnjenjem od 300 ms). Frekvenciju zaista postavlja `turbo-follow-profile.service` (vidi `macbook-setup.md`): proveri vrednost, ograniči je i primeni u roku od 2 s ako je Power Saver aktivan.
+- Fajlovi: `~/.local/share/gnome-shell/extensions/powersaver-freq@local/` (`metadata.json`, `extension.js`). Aktivacija: UUID u `org.gnome.shell enabled-extensions`; na Waylandu odjava/prijava. Greške: `journalctl -b /usr/bin/gnome-shell`.
+- Vraćanje: `gnome-extensions disable powersaver-freq@local` i obrisati direktorijum ekstenzije; limit se tada menja samo ručnim upisom u `saver-max-khz`.
