@@ -8,7 +8,7 @@ Prikazuje snagu punjenja/pražnjenja u vatima (`+33.8 W`, `−12.1 W`, `x W` kad
 - Temperatura procesora: thermal zona `x86_pkg_temp` (`/sys/class/thermal/thermal_zone*/temp`), traži se po tipu; ista vrednost je i red "CPU temperature" u kartici.
 - Frekvencija: `prosek/max`, gde je prosek srednja vrednost `scaling_cur_freq` svih jezgara, a max trenutni `scaling_max_freq` (limit, npr. 1.6 GHz na Power Saveru); jedna decimala u traci, dve u redu "CPU frequency (avg/max)" kartice. Pošto je `intel_pstate` u passive režimu, prosek je frekvencija koju kernel traži, ne izmerena.
 - Izvor: `/sys/class/power_supply/BAT0` (`current_now × voltage_now`, ova baterija nema `power_now`). Osvežava se na 2 s.
-- Raspored ikonica (`_reorder` u `extension.js`), zdesna nalevo: sistemska grupa, jezik, caffeine, copyq, accessibility. Unutar sistemske grupe baterija je skroz levo. Pri `disable()` se ikona vraća na kraj grupe.
+- Raspored ikonica (`_reorder` u `extension.js`), zdesna nalevo: sistemska grupa, jezik, copyq, accessibility. Unutar sistemske grupe baterija je skroz levo. Pri `disable()` se ikona vraća na kraj grupe.
 - Procenat u kartici je sysfs `capacity` (u odnosu na fabrički kapacitet), pa može biti veći od sistemskog (UPower računa `charge_now / charge_full`).
 - Fajlovi: `~/.local/share/gnome-shell/extensions/battery-watts@local/` (`metadata.json`, `extension.js`).
 - Aktivacija: UUID je u `org.gnome.shell enabled-extensions`; `org.gnome.shell disable-user-extensions` mora biti `false` (bio je `true` i blokirao je učitavanje). Na Waylandu je za novu verziju potrebna odjava/prijava.
