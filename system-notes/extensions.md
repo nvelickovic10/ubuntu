@@ -2,11 +2,11 @@
 
 ## Battery Watts (GNOME ekstenzija `battery-watts@local`)
 
-Prikazuje snagu punjenja/pražnjenja u vatima (`+33.8 W`, `−12.1 W`, `x W` kad je puna/miruje), a iza nje temperaturu procesora i prosečnu frekvenciju jezgara (`−12.1 W · 62 °C · 2.1 GHz`).
+Prikazuje snagu punjenja/pražnjenja u vatima (`+33.8 W`, `−12.1 W`, `x W` kad je puna/miruje), a iza nje temperaturu procesora i prosečnu/maksimalnu frekvenciju jezgara (`−12.1 W · 62 °C · 0.8/1.6 GHz`).
 
-- Gde: labela u sistemskoj grupi ikonica u gornjoj traci, odmah desno od sistemske baterije (`BatteryIndicator` je `SystemIndicator`, dodat preko `quickSettings.addExternalIndicator`). Klik na grupu otvara karticu u quick settings meniju: status, nivo, preostalo vreme, snaga, struja, napon, temperatura baterije, temperatura i prosečna frekvencija procesora, zdravlje baterije i broj ciklusa.
+- Gde: labela u sistemskoj grupi ikonica u gornjoj traci, odmah desno od sistemske baterije (`BatteryIndicator` je `SystemIndicator`, dodat preko `quickSettings.addExternalIndicator`). Klik na grupu otvara karticu u quick settings meniju: status, nivo, preostalo vreme, snaga, struja, napon, temperatura baterije, temperatura i frekvencija procesora, zdravlje baterije i broj ciklusa.
 - Temperatura procesora: thermal zona `x86_pkg_temp` (`/sys/class/thermal/thermal_zone*/temp`), traži se po tipu; ista vrednost je i red "CPU temperature" u kartici.
-- Prosečna frekvencija: srednja vrednost `scaling_cur_freq` svih jezgara (`/sys/devices/system/cpu/cpu*/cpufreq/`), jedna decimala u traci, dve u redu "CPU frequency (avg)" kartice. Pošto je `intel_pstate` u passive režimu, to je frekvencija koju kernel traži, ne izmerena.
+- Frekvencija: `prosek/max`, gde je prosek srednja vrednost `scaling_cur_freq` svih jezgara, a max trenutni `scaling_max_freq` (limit, npr. 1.6 GHz na Power Saveru); jedna decimala u traci, dve u redu "CPU frequency (avg/max)" kartice. Pošto je `intel_pstate` u passive režimu, prosek je frekvencija koju kernel traži, ne izmerena.
 - Izvor: `/sys/class/power_supply/BAT0` (`current_now × voltage_now`, ova baterija nema `power_now`). Osvežava se na 2 s.
 - Raspored ikonica (`_reorder` u `extension.js`), zdesna nalevo: sistemska grupa, jezik, caffeine, copyq, accessibility. Unutar sistemske grupe baterija je skroz levo. Pri `disable()` se ikona vraća na kraj grupe.
 - Procenat u kartici je sysfs `capacity` (u odnosu na fabrički kapacitet), pa može biti veći od sistemskog (UPower računa `charge_now / charge_full`).
@@ -25,7 +25,7 @@ Dodaje stavku **Hibernate** u sistemski power meni, odmah posle Suspend (klik zo
 
 ## Power Saver Frequency (GNOME ekstenzija `powersaver-freq@local`)
 
-Klizač u Quick Settings-u (meni gore desno) za maksimalnu CPU frekvenciju koja važi na profilu Power Saver: 800–2500 MHz u koracima od 100 MHz. Vrednost se vidi u zaglavlju podmenija klizača.
+Klizač u Quick Settings-u (meni gore desno) za maksimalnu CPU frekvenciju koja važi na profilu Power Saver: 800–2500 MHz u koracima od 100 MHz. Vrednost (npr. `1600 MHz`) piše desno od klizača i u zaglavlju njegovog podmenija.
 
 - Ekstenzija samo upisuje kHz u `/var/lib/turbo-follow-profile/saver-max-khz` (direktorijum pripada korisniku `monrasta`, upis sa zakašnjenjem od 300 ms). Frekvenciju zaista postavlja `turbo-follow-profile.service` (vidi `macbook-setup.md`): proveri vrednost, ograniči je i primeni u roku od 2 s ako je Power Saver aktivan.
 - Fajlovi: `~/.local/share/gnome-shell/extensions/powersaver-freq@local/` (`metadata.json`, `extension.js`). Aktivacija: UUID u `org.gnome.shell enabled-extensions`; na Waylandu odjava/prijava. Greške: `journalctl -b /usr/bin/gnome-shell`.
