@@ -12,9 +12,9 @@ Traka „run.sh ready“ iznad prompta za `$XDG_RUNTIME_DIR/run.sh`, skriptu koj
 
 Miš (klik i hover) radi samo u fullscreen modu (`/tui fullscreen` ili `CLAUDE_CODE_NO_FLICKER=1`); u običnom modu dugmad i hover ne reaguju. Accept je potvrđen u radu: zenity prozor se otvara i izlaz stiže do Claude-a.
 
-- Fajlovi: `~/.claude/skills/run-preview/` (`.claude-plugin/plugin.json`, `hooks/hooks.json`, `hooks/register.tsx`, `types/index.d.ts` za stanje `rev` (ponovno iscrtavanje trake posle brisanja skripte), i `busy` (skripta trenutno radi)); Claude Code ga sam učitava iz skills foldera, u svakoj sesiji.
+- Fajlovi: `~/.claude/skills/run-preview-mod/` (`.claude-plugin/plugin.json`, `hooks/hooks.json`, `hooks/register.tsx`, `types/index.d.ts` za stanje `rev` (ponovno iscrtavanje trake posle brisanja skripte), i `busy` (skripta trenutno radi)); Claude Code ga sam učitava iz skills foldera, u svakoj sesiji.
 - Radi samo u interaktivnom terminalu (u pozadinskim sesijama se traka ne iscrtava) i kad je korisnik ispred mašine (zenity prozor). Posle izmene: `/reload-plugins`.
-- Vraćanje: obrisati `~/.claude/skills/run-preview/`.
+- Vraćanje: obrisati `~/.claude/skills/run-preview-mod/`.
 
 ## Izlaz uživo za run.sh (`nv-live`)
 
@@ -24,14 +24,21 @@ Izlaz skripte pokrenute običnim izvršavanjem vidi se tek kad se završi. Zato 
 - Zavisnosti: `gnome-terminal` i otvorena grafička sesija.
 - Vraćanje: vratiti u `register.tsx` run-preview moda omotač sa `sudo -A` i `SUDO_ASKPASS` (vidi odeljak askpass) umesto `nv-live`.
 
+## Skill system-notes
+
+Pravila za system notes (čitanje pre izmene, upis posle, šta ide u koji fajl) više nisu u `~/.claude/CLAUDE.md` (tamo je samo jedna linija sa pokazivačem), nego u skillu; učitava se samo kad treba.
+
+- **Skill:** `~/.claude/skills/system-notes-skill/SKILL.md` (globalni skill). Odluka: MCP server nije potreban, jer su beleške mali Markdown fajlovi u git repou i čitaju se običnim `Read`-om.
+- **Vraćanje:** obrisati `~/.claude/skills/system-notes-skill/` i vratiti četiri stavke u odeljak „System notes“ u `~/.claude/CLAUDE.md`.
+
 ## Blokada sudo-a i skill sudo-run
 
 Procedura za komande koje korisnik mora sam da pokrene (sudo) više nije u `~/.claude/CLAUDE.md` (tamo je samo jedna linija sa pokazivačem), nego u skillu; hook garantuje da se skill koristi.
 
 - **Hook:** `~/.claude/hooks/block-sudo.sh`, registrovan u `~/.claude/settings.json` (`hooks.PreToolUse`, matcher `Bash`). Čita komandu iz JSON-a (`jq`) i blokira (exit 2) svaku u kojoj je `sudo` komanda (na početku linije ili posle `;`, `&`, `|`, `(`, uz opcione `VAR=vrednost` prefikse, pa i `sudo -A`). `echo sudo`, `grep sudo` i `bash run.sh` prolaze. Poruka blokade upućuje Claude-a na skill. Ograničenja: ne hvata `sudo` unutar `bash -c "..."`, a heredoc tela koja sadrže liniju sa `sudo` kao komandom daju lažni pogodak (takve fajlove Claude piše Write alatom, ne preko Bash-a).
-- **Skill:** `~/.claude/skills/sudo-run/SKILL.md` (globalni skill) sadrži celu proceduru: `run.sh` u `$XDG_RUNTIME_DIR`, pisanje Write alatom (Bash heredoc sa `sudo` bi hook blokirao), omotač `nv-live`, komentar iznad svake linije, `bash -n` provera i format odgovora na srpskom.
+- **Skill:** `~/.claude/skills/sudo-run-skill/SKILL.md` (globalni skill) sadrži celu proceduru: `run.sh` u `$XDG_RUNTIME_DIR`, pisanje Write alatom (Bash heredoc sa `sudo` bi hook blokirao), omotač `nv-live`, komentar iznad svake linije, `bash -n` provera i format odgovora na srpskom.
 - **Posledica:** permission pravilo za `sudo -A` je obrisano; `sudo` ide samo preko `run.sh` i dugmeta „Accept“.
-- **Vraćanje:** obrisati `hooks` ključ iz `~/.claude/settings.json`, `~/.claude/hooks/block-sudo.sh` i `~/.claude/skills/sudo-run/`, pa vratiti proceduru u odeljak „Commands for the user to run“ u `~/.claude/CLAUDE.md`.
+- **Vraćanje:** obrisati `hooks` ključ iz `~/.claude/settings.json`, `~/.claude/hooks/block-sudo.sh` i `~/.claude/skills/sudo-run-skill/`, pa vratiti proceduru u odeljak „Commands for the user to run“ u `~/.claude/CLAUDE.md`.
 
 ## Askpass helper (zenity) za sudo
 
@@ -60,11 +67,15 @@ Jedan red iznad prompta sa dve trake jedna pored druge: **limiti** (`SESSION` 5h
 - **Podsetnici:** skroz desno u istom redu je `⏰ N`, broj podsetnika iz liste u `~/.claude/CLAUDE.md` (sekcija „Reminder list“, nema više SessionStart hooka, podsetnici se prikazuju samo ovde; čita se pri svakom iscrtavanju). Klik na broj (toggle) otvara/zatvara celu listu iznad reda, poravnatu udesno. Ispred svakog podsetnika je dugme „✕“: klik ga briše iz `~/.claude/CLAUDE.md` (fajl se pri kliku ponovo čita) i prikazuje toast; kad se obriše poslednji, upisuje se `- (empty)`. Klik radi samo u fullscreen modu.
 - **Agent za podsetnik:** pored „✕“ je dugme „▶“. Klik pokreće pozadinsku sesiju (`claude --bg --name "rem: <tekst>" "<tekst podsetnika>"`, vidi se u Agent view-u) i pamti vezu podsetnik → id sesije u `$.store` pod ključem `reminderAgents` (preživljava restart). Posle toga dugme pokazuje stanje sesije kao Agent view: spinner dok radi, `✓` završena, `✗` pala, `●` ostalo (npr. čeka unos), `○` još nepoznato; kad sesije više nema (`claude rm`), opet „▶“ (klik pravi novog agenta). Klik na dugme sa stanjem samo prikazuje toast sa stanjem i prvim redom poslednjeg odgovora (iz transkripta `~/.claude/projects/<cwd>/<sessionId>.jsonl`); ništa se ne otvara ni kopira. Stanja se čitaju sa `claude agents --json --all` na 3 s, ali samo dok je lista podsetnika otvorena ili neka sesija radi (i jednom pri otvaranju liste); spinner se pomera na 120 ms samo dok lista stoji otvorena i sesija radi. Plugin ne može da prebaci ekran u drugu sesiju, pa se u nju ulazi preko `claude attach <id>` ili ← (Agent view). `claude --bg` radi samo u poverenom folderu: pokreće se u folderu sesije, a ako nije poveren, u `~/Documents`.
 - **Panel podsetnika (⏰):** ima isti blagi okvir kao hover panel run-preview moda (`borderStyle="round"` + `borderDimColor`).
-- **Fajlovi:** `~/.claude/skills/health-bars/` (`.claude-plugin/plugin.json`, `hooks/register.tsx`, `types/index.d.ts`, `tests/band.test.ts`); Claude Code ga sam učitava iz skills foldera, u svakoj sesiji. Testovi: `claude plugin test <folder>`; posle izmene: `/reload-plugins`.
-- **Vraćanje:** obrisati `~/.claude/skills/health-bars/`.
+- **Fajlovi:** `~/.claude/skills/health-bars-mod/` (`.claude-plugin/plugin.json`, `hooks/register.tsx`, `types/index.d.ts`, `tests/band.test.ts`); Claude Code ga sam učitava iz skills foldera, u svakoj sesiji. Testovi: `claude plugin test <folder>`; posle izmene: `/reload-plugins`.
+- **Vraćanje:** obrisati `~/.claude/skills/health-bars-mod/`.
 
 ## Prečica za skrivanje trake iznad prompta (keybindings)
 
 `~/.claude/keybindings.json` vezuje `ctrl+x a` (kontekst `Chat`) na akciju `abovePrompt:toggle`, pa skriva/prikazuje health-bars traku. Podrazumevana `ctrl+x ctrl+a` i dalje radi. Jednotasterska `ctrl+b` je probana, ali se traka tada ne iscrtava dok se ne počne kucati (chord prečice rade ispravno), pa je zamenjena chordom.
 
 - Vraćanje: obrisati `~/.claude/keybindings.json`.
+
+## Folder dev-mods (čišćenje)
+
+`~/.claude/dev-mods/` je radni folder koji Claude Code pravi za razvoj modova (jedan poddirektorijum sa UUID imenom po sesiji). Dana 2026-10-14 obrisano je 12 praznih poddirektorijuma (`find -empty -exec rmdir`); sam `dev-mods` je ostao, prazan. Ništa se ne vraća: bili su prazni, a Claude Code ih pravi po potrebi.
