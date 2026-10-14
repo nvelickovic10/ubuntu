@@ -18,13 +18,13 @@ Trenutno **14,2 s** (2,0 s kernel + 12,2 s userspace; pre izmene 23,6 s). Uzrok 
 
 **apt (ručno instalirano):**
 - Razvoj: `git`, `build-essential`, `gcc`, `g++`, `nasm`, `pkg-config`, `checkinstall`, `dkms`, `code` (.deb), `openjdk-17-jdk-headless`, `python-is-python3`, `pipx`, `docker-ce` + `containerd.io`, `mongodb-mongosh`, `pgadmin4-desktop`, `xvfb`, `adb`
-- Hardver i sistem: `broadcom-sta-dkms`, `isight-firmware-tools`, `mbpfan`, `lm-sensors`, `powertop`, `intel-gpu-tools`, `vainfo`, `mesa-utils`, `efibootmgr`, `gparted`, `kyocera-sane`, `stress`, `systemd-zram-generator`, `zenity`
+- Hardver i sistem: `broadcom-sta-dkms`, `mbpfan`, `lm-sensors`, `powertop`, `intel-gpu-tools`, `vainfo`, `mesa-utils`, `efibootmgr`, `gparted`, `kyocera-sane`, `stress`, `systemd-zram-generator`, `zenity`
 - Aplikacije: `google-chrome-stable`, `brave-browser`, `vlc`, `transmission`, `copyq`, `caffeine`, `imagemagick`, `simple-scan`, `htop`, `autojump`, `screen`, `curl`
 - Ostalo: `ibus-table-cangjie*`, `xfonts-cyrillic`, `xfonts-scalable`, `wbritish`
 
 **Snap:** ručno `cheese`, `remmina`, `solvespace` (ostaju namerno); ostalo uz sistem. Flatpak nije instaliran.
 
-**Van paketnih menadžera:** `/usr/local/bin` (`go`, `kubectl`, `helm`, `nosqlbooster4mongo`, `frontProxy`, `lowjson`, `tqdm`; uz njih `go.new`, `helm3.15.2`, `kubectl1.30`), `~/.local/bin` (`claude`), `~/go/bin` (`gopls`, `golangci-lint`, `staticcheck`), npm globalno (`typescript`, `ts-node`), `~/.nvm`, `~/Android/Sdk`. Python je samo sistemski `python3.14`.
+**Van paketnih menadžera:** `/usr/local/bin` (`go`, `kubectl`, `helm`, `nosqlbooster4mongo`, `frontProxy`, `lowjson`; uz njih `go.new`, `helm3.15.2`, `kubectl1.30`), `~/.local/bin` (`claude`), `~/go/bin` (`gopls`, `golangci-lint`, `staticcheck`), npm globalno (`typescript`, `ts-node`), `~/.nvm`, `~/Android/Sdk`. Python je samo sistemski `python3.14`.
 
 **apt repozitorijumi** (`resolute`): `ubuntu.sources`, `ubuntu-esm-apps`, `ubuntu-esm-infra`, `google-chrome`, `vscode`, `docker.sources`, `pgadmin4.sources`, `brave-browser-release.sources` (Brave, instaliran 2026-10-13; ključ `/usr/share/keyrings/brave-browser-archive-keyring.gpg`; vraćanje: `sudo apt remove brave-browser brave-keyring && sudo rm /etc/apt/sources.list.d/brave-browser-release.sources /usr/share/keyrings/brave-browser-archive-keyring.gpg`).
 
@@ -41,6 +41,10 @@ Ponavljanje popisa: `apt-mark showmanual; snap list; apt list --installed 2>/dev
 - **DNS:** posle uklanjanja `dnsmasq` `/etc/resolv.conf` je prebačen: `sudo ln -sf /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf`.
 - **Lokalni PostgreSQL** uklonjen (pgAdmin se kači samo na udaljene baze `other` i `prod`): `apt purge postgresql-18 postgresql-client-18 postgresql-common postgresql-client-common`, klaster `main` i korisnik `postgres` obrisani. Ostali `pgadmin4-desktop`, `pgadmin4-server`, `libpq5`. Backup/Restore i psql u pgAdmin-u ne rade bez `postgresql-client-18` (pa Preferences → Paths → Binary paths `/usr/lib/postgresql/18/bin`). Vraćanje servera: `sudo apt install postgresql` (baza prazna).
 - **`phoronix-test-suite`** (2026-10-11) sa `~/.phoronix-test-suite` (51 MB, uključujući sačuvan rezultat `test-results/qq`): rezultat je nepovratan; paket `sudo apt install phoronix-test-suite`.
+- **`mkdocs`** (2026-10-14) sa 32 automatski povučena paketa (`python3-numpy`, `python3-nltk`, `python3-tqdm`, `python3-pytest`, `python3-dateutil`, `python3-tornado`, `libblas3`/`liblapack3` i dr.; 77,5 MB) i siročetom `/usr/local/bin/tqdm` (stara pip skripta 4.66.6, nepovratno, nije bila potrebna); vraćanje `sudo apt install mkdocs`.
+- **Slanje crash izveštaja Canonical-u** (2026-10-14): `whoopsie.service`, `whoopsie.path` i `apport-autoreport.path` isključeni, zastavica `/var/lib/apport/autoreport` obrisana, `/var/crash` ispražnjen (50 MB, nepovratno). Razlog: `apport-autoreport` je padao zbog 504/400 od servera, a dump sadrži memoriju procesa (Chrome, VS Code, `copyq`, `seahorse`). Lokalni `apport` ostaje uključen. Vraćanje: `sudo systemctl enable --now whoopsie.path apport-autoreport.path && sudo touch /var/lib/apport/autoreport`.
+- **Popravljeni servisi** (2026-10-14): `logrotate` (obrisan zastareli duplikat `/etc/logrotate.d/cloud-init`, isti sadržaj kao `cloud-init-base`; vraća ga `sudo apt install --reinstall cloud-init`, ali bi ponovo pravio grešku) i `snap.remmina.ssh-agent` (obrisan stari `ssh-agent.socket` u `/var/snap/remmina/7392/` ostao posle neurednog gašenja; ako se ponovi isto: obrisati taj fajl i `systemctl restart snap.remmina.ssh-agent`).
+- **`isight-firmware-tools`** (2026-10-14): pravilo `80_isight.rules` je pokvareno (`${prefix}`), za USB iSight `05ac:8300`, a kamera je FaceTime HD (`14e4:1570`) i radi drugim putem; firmver `isight.fw` ne postoji. Vraćanje: `sudo apt install isight-firmware-tools`.
 
 ### Čišćenje home foldera (2026-10-10)
 
