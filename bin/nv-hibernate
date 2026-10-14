@@ -1,5 +1,18 @@
 #!/bin/bash
 # Turns hibernation on or off: power menu item, swap size and resume config
+#
+# Usage: nv-hibernate on|off. Needs sudo.
+#   off: disables the hibernate-menu@local GNOME extension (hides the power menu item), deletes the grub and initramfs
+#        resume configs, recreates /swap.img as 4G, then update-initramfs -u -k all && update-grub.
+#   on:  recreates /swap.img as 20G, reads resume_offset from the first extent of `filefrag -v /swap.img`, writes both
+#        resume configs with the root UUID and that offset (the grub one replaces GRUB_CMDLINE_LINUX_DEFAULT with
+#        `quiet splash resume=... resume_offset=...`), rebuilds initramfs/grub, writes the offset to
+#        /sys/power/resume_offset of the running kernel, enables the extension.
+# Idempotent for the swap size (skipped if the file already has the target size). The runtime write to
+# /sys/power/resume_offset is needed because logind reports CanHibernate=na while the running kernel's offset differs
+# from the swap file's; the new kernel command line itself applies only after a reboot.
+# The offset changes every time /swap.img is recreated, which is why the resume config is rewritten on `on` and dropped
+# on `off`. Don't recreate the swap file elsewhere without redoing it.
 
 SCRIPT_DESC="Usage: nv-hibernate on|off (off: hide Hibernate, swap 4G, drop resume config; on: show Hibernate, swap 20G, set resume config)"
 commons_dir="$( cd "$(dirname "${BASH_SOURCE[0]}")" ; pwd -P )/common"

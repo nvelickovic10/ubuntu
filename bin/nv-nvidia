@@ -1,5 +1,18 @@
 #!/bin/bash
 # Switches which GPU drives the internal display from boot (takes effect after reboot)
+#
+# Usage: nv-nvidia on|off|status. Details and the A/B mode table: system-notes/macbook-setup.md.
+# Both switches need a reboot; status is read-only and compares the running display driver (GPU of the connected eDP
+# connector) with what is configured for the next boot.
+#   on  (NVIDIA, HDMI works):        systemctl disable nvidia-off.service first (aborts if still enabled), then writes 00.
+#   off (Intel, NVIDIA powered off): writes 01 first, then systemctl enable nvidia-off.service.
+# The order is deliberate: the service must never be enabled while NVIDIA drives the display (it would power off a GPU
+# in use; the outcome was not tested). status prints an error if the display runs on nouveau while the service is enabled.
+# gpu-power-prefs EFI variable: written as attributes + value with printf | tee (01 = Intel, 00 = NVIDIA, the values
+# gpu-switch uses). Deleting it does not work: after a boot it is not listed in efivarfs although the firmware still
+# holds it, and right after a write reads fail with EINVAL until the next reboot. So the script only checks that the
+# file exists, and status judges the mode by the running display.
+# Both modes are idempotent and were confirmed by reboot on 2026-10-13.
 
 SCRIPT_DESC="Usage: nv-nvidia on|off|status (on: NVIDIA drives the display, HDMI works; off: Intel drives it, NVIDIA is powered off; both need a reboot)"
 commons_dir="$( cd "$(dirname "${BASH_SOURCE[0]}")" ; pwd -P )/common"

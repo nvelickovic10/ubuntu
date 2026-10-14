@@ -1,5 +1,13 @@
 #!/bin/bash
 # Removes old revisions of snaps and docker system
+#
+# Takes no options.
+#   1. docker system prune --all --force: runs as the current user (no sudo) and deletes stopped containers, unused
+#      networks, build cache and EVERY image not used by a container (e.g. the antenator-nec2-server image whenever no
+#      container uses it, so it has to be pulled or rebuilt afterwards).
+#   2. Old snap revisions (`snap list --all` entries marked disabled) are removed one by one; active revisions are
+#      untouched. The `< /dev/null` stops snap from swallowing the rest of the list read by the while loop.
+# `set -eu` is enabled only after the docker step: a docker failure does not stop the script, a failing snap removal does.
 
 SCRIPT_DESC="Removes old revisions of snaps and docker system"
 commons_dir="$( cd "$(dirname "${BASH_SOURCE[0]}")" ; pwd -P )/common"

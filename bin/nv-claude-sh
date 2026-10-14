@@ -1,5 +1,11 @@
 #!/bin/bash
 # Runs a script Claude Code left in $XDG_RUNTIME_DIR/claude-scripts (run-<session>.sh; the newest one unless a path is given)
+#
+# For commands the user has to run (see the global CLAUDE.md): each Claude Code session has its own
+# run-<PID of the session's Claude process>.sh, so parallel sessions do not overwrite each other.
+# Sources common.sh only (no sudoUtil.sh: it needs no sudo itself, and the pre-auth would prompt needlessly).
+# Optional argument: the script to run; without it the newest run-*.sh is used.
+# Exits 1 with an error if none exists, otherwise with the script's own status.
 
 SCRIPT_DESC="Usage: nv-claude-sh [script] (runs the newest \$XDG_RUNTIME_DIR/claude-scripts/run-*.sh Claude Code prepared, or the given script)"
 commons_dir="$( cd "$(dirname "${BASH_SOURCE[0]}")" ; pwd -P )/common"

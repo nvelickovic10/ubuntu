@@ -1,5 +1,8 @@
 #!/bin/bash
 # This script will fix internet
+#
+# Rebuilds and reloads the rtl8188eu USB wifi driver (rmmod, git pull in ../rtl8188eu, make, install, insmod),
+# then restarts dnsmasq. Assumes the driver repo is cloned next to this repo.
 
 SCRIPT_DESC="This script will fix internet"
 commons_dir="$( cd "$(dirname "${BASH_SOURCE[0]}")" ; pwd -P )/common"

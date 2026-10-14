@@ -1,18 +1,33 @@
 #!/bin/bash
 # Runs a script body (read from stdin) in a GNOME Terminal window so its output is live
+#
+# Usage: nv-live < script. Sources common.sh only (no sudoUtil.sh: it needs no sudo, and the sudo pre-auth would prompt without a terminal). The run-preview "Accept" button feeds run.sh into it (run.sh itself does not call nv-live).
+# Needed because run.sh run through that button or `!` only shows output after it finishes.
+# Window: maximized GNOME Terminal (--maximize, default profile), outer shell is interactive `bash -ic`, the body runs
+# non-interactively; the title is fixed to "claude terminator" (a leftover first argument is ignored).
+# Each invocation works in its own mktemp -d $XDG_RUNTIME_DIR/nv-live.XXXXXX (removed on exit), so parallel runs from
+# several sessions do not share files: the body is saved as run-body.sh, its output goes to the window and is tee'd to
+# run.log, the exit status to run.rc. The window waits for Enter at the end.
+# The inner shell writes its PID to run.pid and nv-live polls it (not gnome-terminal --wait, which does not notice a
+# closed window reliably): if the window is closed before the body finishes it returns within ~1 s with exit 130 and
+# "terminal window was closed" (no window within 20 s: exit 1). Otherwise it prints the log and exits with the body's status.
 
 SCRIPT_DESC="Usage: nv-live [title] < script-body (runs the body in a terminal window, prints the log and exits with its status)"
+commons_dir="$( cd "$(dirname "${BASH_SOURCE[0]}")" ; pwd -P )/common"
 # The window title is fixed; the optional first argument (task name) is accepted but not shown
 TITLE="claude terminator"
 
+# Include common functions
+. ${commons_dir}/common.sh
+
 if [ -z "${XDG_RUNTIME_DIR:-}" ]; then
-    echo "ERROR: XDG_RUNTIME_DIR is not set" >&2
+    logError "XDG_RUNTIME_DIR is not set" >&2
     exit 1
 fi
 
 # A private directory per invocation, so parallel runs from several sessions do not share files
 WORK="$(mktemp -d "${XDG_RUNTIME_DIR}/nv-live.XXXXXX")"
-trap 'rm -rf "${WORK}"' EXIT
+trap 'rm -rf "${WORK}"; cleanup' EXIT
 BODY="${WORK}/run-body.sh"
 LOG="${WORK}/run.log"
 RC="${WORK}/run.rc"
@@ -33,7 +48,7 @@ for _ in $(seq 1 40); do
     sleep 0.5
 done
 if [ ! -s "${PIDF}" ]; then
-    echo "ERROR: terminal window did not start (or was closed immediately)" >&2
+    logError "terminal window did not start (or was closed immediately)" >&2
     exit 1
 fi
 PID="$(cat "${PIDF}")"
@@ -43,7 +58,7 @@ done
 
 [ -f "${LOG}" ] && cat "${LOG}"
 if [ ! -s "${RC}" ]; then
-    echo "ERROR: terminal window was closed before the script finished (no exit status)" >&2
+    logError "terminal window was closed before the script finished (no exit status)" >&2
     exit 130
 fi
 exit "$(cat "${RC}")"

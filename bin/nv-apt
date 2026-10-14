@@ -1,5 +1,18 @@
 #!/bin/bash
 # This script will clean apt 
+#
+# Maintenance wrapper around apt and snap. Usage: nv-apt [--all | --clean | --update | --upgrade | --status | --switch | --help]
+#   --all, --a (default)  update, dist-upgrade -y, autoremove/autoclean/clean -y, then snap refresh; stops at the first failure
+#   --update, --u         apt update && apt list --upgradable
+#   --upgrade, --U        apt dist-upgrade (interactive)
+#   --clean, --rm         apt autoremove && apt autoclean && apt clean (interactive)
+#   --status, --s         reports whether the private sources in PRIVATE_SOURCES (tor.list) are active in
+#                         /etc/apt/sources.list.d ("work settings") or hidden as .tor.list ("personal settings")
+#   --switch, --S         toggles those sources by renaming X.list <-> .X.list, then runs --status
+#
+# Only --all passes -y (ASSUME_YES). It used to pipe `yes` into each step and hung (pipe on stdin + sudo-rs, Ubuntu's
+# current sudo); -y instead of the pipe is tested with real sudo and works. Don't reintroduce `yes |` or eval pipelines.
+# Pass flags to apt through ASSUME_YES and keep each action a separate fn_* function selected by ACTION.
 
 SCRIPT_DESC="This script will clean apt"
 commons_dir="$( cd "$(dirname "${BASH_SOURCE[0]}")" ; pwd -P )/common"
