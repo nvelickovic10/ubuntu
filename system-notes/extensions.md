@@ -25,7 +25,7 @@ Dodaje stavku **Hibernate** u sistemski power meni, odmah posle Suspend (klik zo
 
 ## Power Saver Frequency (GNOME ekstenzija `powersaver-freq@local`)
 
-Klizač u Quick Settings-u (meni gore desno) za maksimalnu CPU frekvenciju koja važi na profilu Power Saver: 800–2500 MHz u koracima od 100 MHz. Vrednost (npr. `1600 MHz`) piše desno od klizača (fiksne širine); klizač nema podmeni ni strelicu.
+Klizač u Quick Settings-u (meni gore desno) za maksimalnu CPU frekvenciju koja važi na profilu Power Saver: 800–2500 MHz u koracima od 100 MHz. Kartica (`QuickSettingsItem`, ne `QuickSlider`): gore ikonica, naslov i vrednost (npr. `1600 MHz`), ispod klizač pune širine; nema podmeni ni strelicu.
 
 - Ekstenzija samo upisuje kHz u `/var/lib/turbo-follow-profile/saver-max-khz` (direktorijum pripada korisniku `monrasta`, upis sa zakašnjenjem od 300 ms). Frekvenciju zaista postavlja `turbo-follow-profile.service` (vidi `macbook-setup.md`): proveri vrednost, ograniči je i primeni u roku od 2 s ako je Power Saver aktivan.
 - Fajlovi: `~/.local/share/gnome-shell/extensions/powersaver-freq@local/` (`metadata.json`, `extension.js`). Aktivacija: UUID u `org.gnome.shell enabled-extensions`; na Waylandu odjava/prijava. Greške: `journalctl -b /usr/bin/gnome-shell`.
