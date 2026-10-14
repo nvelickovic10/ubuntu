@@ -2,7 +2,8 @@
 # Runs a script body (read from stdin) in a GNOME Terminal window so its output is live
 
 SCRIPT_DESC="Usage: nv-live [title] < script-body (runs the body in a terminal window, prints the log and exits with its status)"
-TITLE="${1:-nv-live}"
+# The window title is fixed; the optional first argument (task name) is accepted but not shown
+TITLE="claude terminator"
 BODY="${XDG_RUNTIME_DIR:-}/run-body.sh"
 LOG="${XDG_RUNTIME_DIR:-}/run.log"
 RC="${XDG_RUNTIME_DIR:-}/run.rc"

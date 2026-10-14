@@ -7,7 +7,7 @@ Naše izmene Claude Code-a (hookovi, modovi, permission pravila, helperi), svaka
 Traka „run.sh ready“ iznad prompta za `$XDG_RUNTIME_DIR/run.sh`, skriptu koju Claude piše kad korisnik treba nešto da pokrene (sudo). Dugmad:
 
 - „Show script“ / „Hide script“: toggle koji otvara/zatvara skriptu u docked panelu desno od razgovora (`$.ui.open`, id `run-script`, `columns` = pola širine terminala; engine može da ograniči širinu; skrol radi engine, točkić ili strelice dok panel ima fokus). Bash highlighting je u `register.tsx` (komentari zeleni i zatamnjeni, stringovi žuti, promenljive cijan, ključne reči magenta, flagovi plavi). Panel se dokuje samo u fullscreen modu od 110 kolona; na užem terminalu (ili kad se ne može smestiti) „Show script“ otvara skriptu u okviru unutar trake (do 12 linija, ostalo „... N more lines“). Traka je responsive: ispod 60 kolona su kratke oznake (`Run`/`No`/`Show`/`Hide`), a dugmad se prelamaju u novi red. Zatvara se i pri Accept/Decline (atom `open` prati hook `ui.close`). Claude zato ne ispisuje skriptu u odgovoru.
-- „Accept“: pokreće skriptu (do 10 minuta) tako da svaki `sudo` u njoj postaje `sudo -A`, pa se lozinka traži u zenity prozoru (`~/.local/bin/sudo-askpass`, vidi odeljak ispod). Posle izvršenja skripta se briše, a Claude dobija poruku sa exit kodom, stdout i stderr (poslednjih 4000 znakova) i nastavlja sam. Dok radi, traka piše „running...“.
+- „Accept“: pokreće skriptu preko `nv-live` (`exec nv-live < run.sh`, do 10 minuta): izlaz uživo u prozoru GNOME Terminala „claude terminator“, lozinku za sudo kucaš tamo. Posle izvršenja skripta se briše, a Claude dobija poruku sa exit kodom i izlazom (poslednjih 4000 znakova) i nastavlja sam. Dok radi, traka piše „running...“. `run.sh` je zato goli skript (bez poziva `nv-live`); isti fajl radi i kad se pokrene ručno sa `bash $XDG_RUNTIME_DIR/run.sh`.
 - „Decline“: briše skriptu (bez potvrde) i javlja Claude-u da je odbijena i da je ne pokreće.
 
 Miš (klik i hover) radi samo u fullscreen modu (`/tui fullscreen` ili `CLAUDE_CODE_NO_FLICKER=1`); u običnom modu dugmad i hover ne reaguju. Accept je potvrđen u radu: zenity prozor se otvara i izlaz stiže do Claude-a.
@@ -18,20 +18,28 @@ Miš (klik i hover) radi samo u fullscreen modu (`/tui fullscreen` ili `CLAUDE_C
 
 ## Izlaz uživo za run.sh (`nv-live`)
 
-Izlaz skripte pokrenute dugmetom „Accept“ ili preko `!` vidi se tek kad se skripta završi. Zato je `run.sh` tanak omotač oko `nv-live` (`~/Documents/ubuntu/bin/nv-live`, opis u `~/Documents/ubuntu/CLAUDE.md`): `nv-live "<naslov>" <<'EOF' ... EOF`. Telo skripte radi u maksimizovanom prozoru GNOME Terminala (`--maximize`, podrazumevani profil, spoljašnji shell je interaktivni `bash -ic`, a telo skripte radi neinteraktivno; izlaz uživo, sudo lozinka se kuca tamo), uz upis u `$XDG_RUNTIME_DIR/run.log` i `run.rc`; na kraju prozor čeka Enter, pa se log i exit kod vraćaju Claude-u. Ako korisnik zatvori prozor pre kraja, `nv-live` to primeti u roku od ~1 s (prati PID unutrašnjeg shella iz `run.pid`) i vraća grešku „terminal window was closed“ sa exit kodom 130.
+Izlaz skripte pokrenute običnim izvršavanjem vidi se tek kad se završi. Zato „Accept“ pokreće `run.sh` preko `nv-live` (`~/Documents/ubuntu/bin/nv-live`, opis u `~/Documents/ubuntu/CLAUDE.md`), a `run.sh` je goli skript. Telo radi u maksimizovanom prozoru GNOME Terminala (`--maximize`, naslov uvek „claude terminator“, fiksiran u `nv-live`; podrazumevani profil, spoljašnji shell je interaktivni `bash -ic`, a telo radi neinteraktivno; izlaz uživo, sudo lozinka se kuca tamo), uz upis u `$XDG_RUNTIME_DIR/run.log` i `run.rc`; na kraju prozor čeka Enter, pa se log i exit kod vraćaju Claude-u. Ako korisnik zatvori prozor pre kraja, `nv-live` to primeti u roku od ~1 s (prati PID unutrašnjeg shella iz `run.pid`) i vraća grešku „terminal window was closed“ sa exit kodom 130.
 
-- Pravilo za Claude-a je u `~/.claude/CLAUDE.md` (odeljak „Commands for the user to run“). To je jedini izvor pravila (memory fajl je obrisan da ne bi bilo dve verzije): jedan `run.sh`, omotač `nv-live`, komentar iznad svake linije, a odgovor sadrži samo opis i rečenicu sa `bash $XDG_RUNTIME_DIR/run.sh` (bez `!`); skripta se ne ispisuje, vidi se preko „Show script“.
+- Pravilo za Claude-a je u skillu `sudo-run` (vidi odeljak „Blokada sudo-a i skill sudo-run“): jedan goli `run.sh` (bez omotača), komentar iznad svake linije, a odgovor sadrži samo opis i rečenicu sa `bash $XDG_RUNTIME_DIR/run.sh` (bez `!`); skripta se ne ispisuje, vidi se preko „Show script“.
 - Zavisnosti: `gnome-terminal` i otvorena grafička sesija.
-- Vraćanje: obrisati `nv-live` i stavku iz `~/.claude/CLAUDE.md`; `run.sh` opet piše telo direktno.
+- Vraćanje: vratiti u `register.tsx` run-preview moda omotač sa `sudo -A` i `SUDO_ASKPASS` (vidi odeljak askpass) umesto `nv-live`.
 
-## Sudo preko grafičkog prozora za lozinku (askpass)
+## Blokada sudo-a i skill sudo-run
 
-Claude Code nema terminal, pa `sudo` ne može sam da pita za lozinku. Rešenje: `sudo -A` pokreće helper koji na ekranu otvara `zenity` prozor; lozinku ukucava korisnik, Claude je ne vidi.
+Procedura za komande koje korisnik mora sam da pokrene (sudo) više nije u `~/.claude/CLAUDE.md` (tamo je samo jedna linija sa pokazivačem), nego u skillu; hook garantuje da se skill koristi.
 
-- Helper: `~/.local/bin/sudo-askpass` (`chmod 700`, `exec zenity --password`). Poziv: `SUDO_ASKPASS=$HOME/.local/bin/sudo-askpass sudo -A <komanda>`.
-- Permission pravilo `Bash(SUDO_ASKPASS=* sudo -A *)` je u `~/.claude/settings.json` (`permissions.allow`); dodato ručno preko `/permissions`, jer Claude ne sme sam da menja svoja pravila. Pravilo je široko: dozvoljava svaku `sudo -A` komandu, a lozinka ostaje jedina zaštita.
-- Radi samo kad je korisnik ispred mašine (prozor se otvara na `DISPLAY`/Wayland sesiji).
-- Vraćanje: obrisati `~/.local/bin/sudo-askpass` i pravilo iz `~/.claude/settings.json` (`/permissions` → Allow → Delete).
+- **Hook:** `~/.claude/hooks/block-sudo.sh`, registrovan u `~/.claude/settings.json` (`hooks.PreToolUse`, matcher `Bash`). Čita komandu iz JSON-a (`jq`) i blokira (exit 2) svaku u kojoj je `sudo` komanda (na početku linije ili posle `;`, `&`, `|`, `(`, uz opcione `VAR=vrednost` prefikse, pa i `sudo -A`). `echo sudo`, `grep sudo` i `bash run.sh` prolaze. Poruka blokade upućuje Claude-a na skill. Ograničenja: ne hvata `sudo` unutar `bash -c "..."`, a heredoc tela koja sadrže liniju sa `sudo` kao komandom daju lažni pogodak (takve fajlove Claude piše Write alatom, ne preko Bash-a).
+- **Skill:** `~/.claude/skills/sudo-run/SKILL.md` (globalni skill) sadrži celu proceduru: `run.sh` u `$XDG_RUNTIME_DIR`, pisanje Write alatom (Bash heredoc sa `sudo` bi hook blokirao), omotač `nv-live`, komentar iznad svake linije, `bash -n` provera i format odgovora na srpskom.
+- **Posledica:** permission pravilo za `sudo -A` je obrisano; `sudo` ide samo preko `run.sh` i dugmeta „Accept“.
+- **Vraćanje:** obrisati `hooks` ključ iz `~/.claude/settings.json`, `~/.claude/hooks/block-sudo.sh` i `~/.claude/skills/sudo-run/`, pa vratiti proceduru u odeljak „Commands for the user to run“ u `~/.claude/CLAUDE.md`.
+
+## Askpass helper (zenity) za sudo
+
+Nekadašnji način da Claude Code, koji nema terminal, dobije sudo lozinku: `sudo -A` pokreće helper koji otvara `zenity` prozor. Više se ne koristi: „Accept“ ide preko `nv-live` (lozinka se kuca u terminalu), `block-sudo` hook blokira `sudo` iz Bash alata, a permission pravilo za `sudo -A` je obrisano.
+
+- Helper je ostao: `~/.local/bin/sudo-askpass` (`chmod 700`, `exec zenity --password`). Ručni poziv: `SUDO_ASKPASS=$HOME/.local/bin/sudo-askpass sudo -A <komanda>`.
+- Vraćanje na stari način: vidi „run-preview mod“ (omotač u `register.tsx`) i vratiti pravilo `Bash(SUDO_ASKPASS=* sudo -A *)` preko `/permissions`, uz izuzimanje iz `block-sudo` hooka.
+- Brisanje: obrisati `~/.local/bin/sudo-askpass`.
 
 ## Isključeni claude.ai konektori
 
