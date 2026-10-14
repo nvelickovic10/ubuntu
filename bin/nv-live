@@ -4,18 +4,20 @@
 SCRIPT_DESC="Usage: nv-live [title] < script-body (runs the body in a terminal window, prints the log and exits with its status)"
 # The window title is fixed; the optional first argument (task name) is accepted but not shown
 TITLE="claude terminator"
-BODY="${XDG_RUNTIME_DIR:-}/run-body.sh"
-LOG="${XDG_RUNTIME_DIR:-}/run.log"
-RC="${XDG_RUNTIME_DIR:-}/run.rc"
 
 if [ -z "${XDG_RUNTIME_DIR:-}" ]; then
     echo "ERROR: XDG_RUNTIME_DIR is not set" >&2
     exit 1
 fi
 
-PIDF="${XDG_RUNTIME_DIR}/run.pid"
+# A private directory per invocation, so parallel runs from several sessions do not share files
+WORK="$(mktemp -d "${XDG_RUNTIME_DIR}/nv-live.XXXXXX")"
+trap 'rm -rf "${WORK}"' EXIT
+BODY="${WORK}/run-body.sh"
+LOG="${WORK}/run.log"
+RC="${WORK}/run.rc"
+PIDF="${WORK}/run.pid"
 
-rm -f "${LOG}" "${RC}" "${PIDF}"
 cat > "${BODY}"
 chmod 700 "${BODY}"
 

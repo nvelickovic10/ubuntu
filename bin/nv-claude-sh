@@ -1,15 +1,15 @@
 #!/bin/bash
-# Runs the script Claude Code left in $XDG_RUNTIME_DIR/run.sh
+# Runs a script Claude Code left in $XDG_RUNTIME_DIR/claude-scripts (run-<session>.sh; the newest one unless a path is given)
 
-SCRIPT_DESC="Usage: nv-claude-sh (runs \$XDG_RUNTIME_DIR/run.sh, the script Claude Code prepared)"
+SCRIPT_DESC="Usage: nv-claude-sh [script] (runs the newest \$XDG_RUNTIME_DIR/claude-scripts/run-*.sh Claude Code prepared, or the given script)"
 commons_dir="$( cd "$(dirname "${BASH_SOURCE[0]}")" ; pwd -P )/common"
-RUN_SH="${XDG_RUNTIME_DIR:-}/run.sh"
+RUN_SH="${1:-$(ls -t "${XDG_RUNTIME_DIR:-/nonexistent}"/claude-scripts/run-*.sh 2>/dev/null | head -n 1)}"
 
 # Include common functions
 . ${commons_dir}/common.sh
 
-if [ -z "${XDG_RUNTIME_DIR:-}" ] || [ ! -f "${RUN_SH}" ]; then
-    logError "${RUN_SH} not found"
+if [ -z "${RUN_SH}" ] || [ ! -f "${RUN_SH}" ]; then
+    logError "no Claude script found in ${XDG_RUNTIME_DIR:-\$XDG_RUNTIME_DIR}/claude-scripts"
     exit 1
 fi
 
