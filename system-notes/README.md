@@ -8,7 +8,7 @@ Naše GNOME ekstenzije beleže se u `extensions.md`, a naše izmene Claude Code-
 
 Rezultati svih analiza (potrošnja, popis softvera i slično) idu u `analysis.md`, svaka u svom `##` odeljku.
 
-- [macbook-setup.md](macbook-setup.md) — kritična pravila (ne diraj) i izmene sa vraćanjem: grafika (dva režima, `nv-nvidia`) i hlađenje, potrošnja i ventilatori, hibernacija (`nv-hibernate`), zram swap, kamera, logind, Bluetooth, turbo
+- [macbook-setup.md](macbook-setup.md) — kritična pravila (ne diraj) i izmene sa vraćanjem: grafika (dva režima, `nv-nvidia`) i hlađenje, potrošnja i ventilatori, hibernacija (`nv-hibernate`), zram swap, kamera, logind, Bluetooth, turbo i CPU limit po power profilu
 - [analysis.md](analysis.md) — rezultati analiza: potrošnja baterije, trajanje boota, popis instaliranog softvera i čišćenje (sa vraćanjem)
 - [extensions.md](extensions.md) — GNOME ekstenzije `battery-watts` i `hibernate-menu`
 - [claude-config.md](claude-config.md) — Claude Code: run-preview mod, izlaz uživo za run.sh (`nv-live`), sudo preko grafičkog prozora za lozinku (askpass), isključeni claude.ai konektori, health-bars mod
