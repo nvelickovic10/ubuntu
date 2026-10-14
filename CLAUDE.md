@@ -46,10 +46,6 @@ Note: `set -eu` is enabled only after the docker step, so a docker failure does 
 - Both are idempotent for the swap size (skipped if the file already has the target size). The runtime write to `/sys/power/resume_offset` is needed because logind reports `CanHibernate=na` while the running kernel's offset differs from the swap file's; the new command line itself only applies after a reboot.
 - The offset changes every time `/swap.img` is recreated, which is why the resume config is rewritten on `on` and dropped on `off`. Don't recreate the swap file elsewhere without redoing it.
 
-## nv-turbo
-
-`nv-turbo on|off` enables or disables Intel Turbo Boost by writing `0` / `1` to `/sys/devices/system/cpu/intel_pstate/no_turbo` through `runAsSudo`, then logs the resulting state. The setting lasts until reboot. It replaces the `nv-turbo-on` / `nv-turbo-off` aliases that used to live in `~/.bash_aliases` (removed).
-
 ## nv-nvidia
 
 `nv-nvidia on|off|status` chooses which GPU drives the internal display from boot (details and the A/B mode table in `system-notes/macbook-setup.md`). Both switches need a reboot; `status` is read-only and compares the running display driver (the GPU of the connected eDP connector) with what is configured for the next boot.
