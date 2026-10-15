@@ -33,3 +33,12 @@ Klizač u Quick Settings-u (meni gore desno) za maksimalnu CPU frekvenciju koja 
 - **Idle:** ekstenzija preko `global.backend.get_core_idle_monitor()` (idle watchevi `IDLE_MS` = 15000 i `IDLE_LONG_MS` = 30000 + user-active watch) upisuje nivo `1`/`2`/`0` u `/var/lib/turbo-follow-profile/idle`; pri `disable()` upisuje `0`. Šta servis radi sa nivoom: isti odeljak u `macbook-setup.md`.
 - Fajlovi: `~/.local/share/gnome-shell/extensions/powersaver-freq@local/` (`metadata.json`, `extension.js`). Aktivacija: UUID u `org.gnome.shell enabled-extensions`; na Waylandu odjava/prijava. Greške: `journalctl -b /usr/bin/gnome-shell`.
 - Vraćanje: `gnome-extensions disable powersaver-freq@local` i obrisati direktorijum ekstenzije; limit se tada menja samo ručnim upisom u `saver-max-khz`.
+
+## mbpfan Thresholds (GNOME ekstenzija `mbpfan-thresholds@local`)
+
+Kartica u Quick Settings-u sa tri klizača (40–90 °C, razmak najmanje 2 °C, susedni se pomeraju) za `low_temp`, `high_temp` i `max_temp` iz `/etc/mbpfan.conf` (značenje i vrednosti: „Potrošnja i ventilatori“ u `macbook-setup.md`). Uvek vidljiva. Ekstenzija 800 ms posle poslednjeg pomeranja upisuje `low high max` u `/var/lib/mbpfan-ui/thresholds` (direktorijum pripada korisniku `monrasta`).
+
+- **Root strana:** `mbpfan-apply.path` (enabled, `PathChanged` na taj fajl) pokreće `mbpfan-apply.service` (oneshot, `/usr/local/sbin/mbpfan-apply`). Skripta prihvata samo tri dvocifrena cela broja sa `low >= 40`, `max <= 90`, `low < high < max`, sa `sed` menja samo te tri vrednosti u konfiguraciji i restartuje `mbpfan`. Fajl piše običan korisnik, pa je ta validacija jedina zaštita: ništa drugo ne može dospeti u `/etc/mbpfan.conf`.
+- **Provera:** upisati `56 61 71` u `/var/lib/mbpfan-ui/thresholds` (preko rename-a, kao ekstenzija) i posle 3 s `grep -E '^(low|high|max)_temp' /etc/mbpfan.conf` mora pokazati 56/61/71 (2026-10-15, provereno, pa vraćeno na 55/60/70). Sama ekstenzija (UI) još nije provereno učitana.
+- **Aktivacija:** `gnome-extensions enable mbpfan-thresholds@local`; na Waylandu odjava/prijava. Greške: `journalctl -b /usr/bin/gnome-shell`.
+- **Vraćanje:** `gnome-extensions disable mbpfan-thresholds@local && rm -r ~/.local/share/gnome-shell/extensions/mbpfan-thresholds@local`, pa root deo: `sudo systemctl disable --now mbpfan-apply.path && sudo rm -r /etc/systemd/system/mbpfan-apply.path /etc/systemd/system/mbpfan-apply.service /usr/local/sbin/mbpfan-apply /var/lib/mbpfan-ui && sudo systemctl daemon-reload`. Konfiguracija ostaje na poslednjim vrednostima.
