@@ -170,6 +170,12 @@ Ne može da se vrati: prateći xorg fajlovi.
 - **Provera:** `gsettings get org.gnome.settings-daemon.plugins.media-keys custom-keybindings` vraća putanju `.../custom-keybindings/copyq/`; pritisak na Super+V otvara CopyQ.
 - **Vraćanje:** `gsettings reset org.gnome.shell.keybindings toggle-message-tray && gsettings reset org.gnome.settings-daemon.plugins.media-keys custom-keybindings`.
 
+## Dock bez Trash ikone
+
+- Ubuntu Dock (`dash-to-dock`) ne prikazuje Trash: `gsettings set org.gnome.shell.extensions.dash-to-dock show-trash false` (2026-10-15).
+- **Provera:** `gsettings get org.gnome.shell.extensions.dash-to-dock show-trash` vraća `false`.
+- **Vraćanje:** `gsettings reset org.gnome.shell.extensions.dash-to-dock show-trash`.
+
 ## Uklonjeno
 
 Jedan red po uklonjenoj stvari: šta, kada i kako se vraća.
