@@ -158,6 +158,19 @@ Ne može da se vrati: prateći xorg fajlovi.
 - Ažuriranje: ugasiti aplikaciju, raspakovati sa `--strip-components=1`, `chown -R monrasta:monrasta`, `chrome-sandbox` `root:root` i `chmod 4755`.
 - **Uklanjanje:** `sudo rm -rf /usr/local/nosqlbooster4mongo /usr/local/bin/nosqlbooster4mongo` (podešavanja ostaju).
 
+## wl-clipboard (clipboard iz terminala)
+
+- `sudo apt install wl-clipboard` (2026-10-15): `wl-copy`/`wl-paste` da Claude može da ubaci tekst u Wayland clipboard (`wl-copy < fajl`). Pre toga GTK helper nije bio pouzdan.
+- **Provera:** `echo test | wl-copy && wl-paste` vraća `test`.
+- **Vraćanje:** `sudo apt remove wl-clipboard`.
+
+## CopyQ na Super+V (clipboard history)
+
+- Ubuntu 26.04 nema ugrađen clipboard history, koristi se `copyq` (autostart preko `~/.config/autostart/copyq.desktop`). Na Waylandu CopyQ ne može sam da registruje globalnu prečicu, pa je to GNOME custom keybinding „CopyQ“: `Super+V` pokreće `copyq toggle` (2026-10-15).
+- `Super+V` je podrazumevano bio GNOME-ova notifikaciona traka; `org.gnome.shell.keybindings toggle-message-tray` je zato postavljen na `['<Super>m']`.
+- **Provera:** `gsettings get org.gnome.settings-daemon.plugins.media-keys custom-keybindings` vraća putanju `.../custom-keybindings/copyq/`; pritisak na Super+V otvara CopyQ.
+- **Vraćanje:** `gsettings reset org.gnome.shell.keybindings toggle-message-tray && gsettings reset org.gnome.settings-daemon.plugins.media-keys custom-keybindings`.
+
 ## Uklonjeno
 
 Jedan red po uklonjenoj stvari: šta, kada i kako se vraća.
