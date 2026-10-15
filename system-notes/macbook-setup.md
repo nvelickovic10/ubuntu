@@ -67,9 +67,9 @@ Ne može da se vrati: prateći xorg fajlovi.
 ## Zaključavanje ekrana
 
 - `org.gnome.desktop.lockdown disable-lock-screen` je bio `true` u korisničkom dconf-u (verovatno ostatak xrdp podešavanja; uzrok nije utvrđen), pa GNOME nije zaključavao ni na idle, ni posle suspenda/hibernacije, ni na Super+L, a ni `HandleLidSwitchExternalPower=lock` nije radio. Resetovan 2026-10-15 (`gsettings reset ...`).
-- Važi: `lock-enabled=true`, `lock-delay=0`, `idle-delay=180`. Na performance profilu idle i dalje ne postoji (vidi „Zatvaranje ekrana i idle na performance profilu“), pa se tada zaključava samo ručno (Super+L).
+- Važi: `lock-enabled=true`, `lock-delay=300` (zaključava 5 min posle gašenja ekrana; promenjeno 2026-10-15, pre toga `0`), `idle-delay=180`. Suspend i dalje zaključava odmah (`ubuntu-lock-on-suspend=true`). Na performance profilu idle i dalje ne postoji (vidi „Zatvaranje ekrana i idle na performance profilu“), pa se tada zaključava samo ručno (Super+L).
 - **Provera:** `gsettings get org.gnome.desktop.lockdown disable-lock-screen` vraća `false`.
-- **Vraćanje (slabi zaštitu):** `gsettings set org.gnome.desktop.lockdown disable-lock-screen true`.
+- **Vraćanje (slabi zaštitu):** `gsettings set org.gnome.desktop.lockdown disable-lock-screen true`. Povratak na trenutno zaključavanje: `gsettings set org.gnome.desktop.screensaver lock-delay 0`.
 
 ## Kyocera udev pravilo (USB dozvole)
 
