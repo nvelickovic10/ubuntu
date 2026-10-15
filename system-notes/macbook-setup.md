@@ -46,7 +46,7 @@ Cilj je hladan i tih sistem u mirovanju: NVIDIA ugašena i hardversko dekodiranj
 - `/etc/environment`: `LIBVA_DRIVER_NAME=i965`; `/etc/X11/xorg.conf` → `xorg.conf.nvidia-old`; iz GRUB-a uklonjen `nvidia.drm-modeset=1`; uklonjen `vdpau-va-driver`.
 - **Očekivano stanje:** jezgra u mirovanju 58–61°C, ventilatori ~2300 RPM; `glxinfo -B | grep renderer` → `Mesa Intel(R) Iris(R) Pro Graphics P5200`; `/sys/bus/pci/devices/0000:01:00.0/power_state` → `D3hot`; `sudo cat /sys/kernel/debug/vgaswitcheroo/switch` → `DIS ... Off`.
 - **HDMI/TB idu preko NVIDIA-e** (vidi „NVIDIA i grafika: dva režima“): rade samo u režimu B.
-- **Korisno:** `sensors`, `sudo intel_gpu_top`. YouTube: dodatak **enhanced-h264ify** (blokirati VP8/VP9/AV1), jer Haswell hardverski dekodira samo H.264.
+- **Korisno:** `sensors`, `nvtop`. YouTube: dodatak **enhanced-h264ify** (blokirati VP8/VP9/AV1), jer Haswell hardverski dekodira samo H.264.
 - **Vraćanje** (posle grafičkih izmena restart):
 
 ```bash
@@ -59,6 +59,10 @@ sudo apt install vdpau-va-driver
 ```
 
 Ne može da se vrati: prateći xorg fajlovi.
+
+## nvtop (GPU monitor)
+
+`nvtop` 3.2.0 iz Ubuntu repozitorijuma (`multiverse`), instaliran 2026-10-15 kao GPU pandan htop-u (htop ne prikazuje GPU za ovu kartu). Provera: `nvtop -s` ispiše JSON sa uređajima. U režimu A vidi samo Intel Iris Pro (clock, bez temperature i util); NVIDIA je ugašena. U režimu B nouveau izlaže manje metrika od zvaničnog drajvera. Vraćanje: `sudo apt remove nvtop`.
 
 ## Indekser pretrage (`localsearch`)
 
@@ -141,7 +145,7 @@ Ne može da se vrati: prateći xorg fajlovi.
 ## Podrazumevani pregledač (Firefox)
 
 - `xdg-settings set default-web-browser firefox_firefox.desktop` (upisano u `~/.config/mimeapps.list`: `http`, `https`, `html`); alternative `x-www-browser` i `gnome-www-browser` ručno pinovane na `/usr/bin/firefox` (inače `x-www-browser` bira pregledač po prioritetu, a ne Firefox).
-- Ako snap Firefox ne koristi VA-API (`intel_gpu_top`: Video na 0% dok ide video), instalirati Firefox iz Mozillinog APT repozitorijuma.
+- Ako snap Firefox ne koristi VA-API (`nvtop` ili `sudo intel_gpu_top` posle ponovne instalacije: Video na 0% dok ide video), instalirati Firefox iz Mozillinog APT repozitorijuma.
 - Za tešku browser igru: `google-chrome-stable` (`.deb`, repo `/etc/apt/sources.list.d/google-chrome.sources`) uz power profil koji gasi turbo (Balanced/Power Saver).
 - **Vraćanje:** `sudo update-alternatives --auto x-www-browser && sudo update-alternatives --auto gnome-www-browser`. Chrome: `sudo apt remove google-chrome-stable && sudo rm /etc/apt/sources.list.d/google-chrome.sources`.
 
@@ -156,6 +160,7 @@ Ne može da se vrati: prateći xorg fajlovi.
 Jedan red po uklonjenoj stvari: šta, kada i kako se vraća.
 
 - **Noble ostaci** (2026-10-10): stari headers/tools paketi, `postgresql-16`, `python3.11`/`3.12`, 87 `rc` paketa, rezervni kernel `6.8.0-146`. Jedini kernel je `7.0.0-38`; ako se ne podigne, live USB ili stariji kernel iz repozitorijuma.
+- **`igt-gpu-tools`** (`intel_gpu_top`, `gputop`; 2026-10-15, purge sa `intel-gpu-tools` i `liboping0`): zamenio ga `nvtop`; `sudo apt install igt-gpu-tools`.
 - **`xrdp`, `xfce4`, `xfce4-goodies`** (2026-10-10): `sudo apt install xrdp xfce4`.
 - **Virtuelizacija** (`libvirt-*`, `qemu-system-x86`, `bridge-utils`, `dnsmasq`, `cpu-checker`; 2026-10-10): `sudo apt install libvirt-daemon-system qemu-system-x86`. Posle uklanjanja `dnsmasq` `/etc/resolv.conf` pokazuje na `/run/systemd/resolve/stub-resolv.conf` (Ubuntu podrazumevano; prethodna meta nije zabeležena).
 - **Steam i 32-bitne biblioteke** (2026-10-10): `sudo dpkg --add-architecture i386 && sudo apt update`, pa Steam.
