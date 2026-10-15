@@ -64,6 +64,27 @@ Ne može da se vrati: prateći xorg fajlovi.
 
 `btop` 1.4.6 (`universe`, instaliran 2026-10-15): pregled CPU/RAM/diska/mreže/temperature na jednom ekranu. Provera: `btop --version`. Vraćanje: `sudo apt remove btop`.
 
+## Zaključavanje ekrana
+
+- `org.gnome.desktop.lockdown disable-lock-screen` je bio `true` u korisničkom dconf-u (verovatno ostatak xrdp podešavanja; uzrok nije utvrđen), pa GNOME nije zaključavao ni na idle, ni posle suspenda/hibernacije, ni na Super+L, a ni `HandleLidSwitchExternalPower=lock` nije radio. Resetovan 2026-10-15 (`gsettings reset ...`).
+- Važi: `lock-enabled=true`, `lock-delay=0`, `idle-delay=180`. Na performance profilu idle i dalje ne postoji (vidi „Zatvaranje ekrana i idle na performance profilu“), pa se tada zaključava samo ručno (Super+L).
+- **Provera:** `gsettings get org.gnome.desktop.lockdown disable-lock-screen` vraća `false`.
+- **Vraćanje (slabi zaštitu):** `gsettings set org.gnome.desktop.lockdown disable-lock-screen true`.
+
+## Kyocera udev pravilo (USB dozvole)
+
+- `/etc/udev/rules.d/40-scanner-permissions.rules` (iz `kyocera-sane`) davao je `0666` svim USB uređajima, uključujući ugrađenu tastaturu, trackpad i Bluetooth (raw usbfs pristup za svaki uid). Od 2026-10-15 pravilo važi samo za Kyocera (`ATTR{idVendor}=="0482"`), fajl je `644`. Original: `/etc/udev/40-scanner-permissions.rules.bak-2026-10-15`.
+- Udev na `change` ne vraća dozvole postojećim čvorovima, pa su tada ručno postavljeni na `664`; novo pravilo se samo primenjuje pri bootu ili priključivanju.
+- **Provera:** `ls -l /dev/bus/usb/*/*` daje `crw-rw-r--` (posle restarta takođe). Ako Kyocera USB skener ne radi, prvo proveriti `lsusb | grep 0482`.
+- **Vraćanje:** `sudo cp /etc/udev/40-scanner-permissions.rules.bak-2026-10-15 /etc/udev/rules.d/40-scanner-permissions.rules && sudo udevadm control --reload`, pa restart.
+
+## smartmontools (zdravlje SSD-a)
+
+- `smartmontools` 7.5 (instaliran 2026-10-15 sa `--no-install-recommends`, da ne povuče mail server): `smartctl` za proveru Apple SSD-a, a `smartd` (servis `smartmontools`, enabled) ga prati u pozadini i upisuje vrednosti u `/var/lib/smartmontools/`.
+- Apple SSD traži SAT: `sudo smartctl -a -d sat /dev/sda`. Stanje 2026-10-15: bez grešaka u logu, Reallocated/Pending/CRC 0, oko 23 200 sati rada.
+- **Provera:** `systemctl is-active smartmontools` vraća `active`; `journalctl -u smartmontools -b` sadrži `Adding to "monitor" list`.
+- **Vraćanje:** `sudo apt purge smartmontools`.
+
 ## Indekser pretrage (`localsearch`)
 
 - Ignorisani `go`, `snap`, `node_modules`, `vendor`, `venv`, `.venv`, `__pycache__`, `build`, `dist`, `target` (127 → ~6 hiljada fajlova); `~/Documents/videobolt` isključen fajlom `.trackerignore` (isto radi `touch <folder>/.trackerignore`).
@@ -126,12 +147,12 @@ Ne može da se vrati: prateći xorg fajlovi.
 
 ## Turbo i CPU frekvencija po power profilu
 
-`turbo-follow-profile.service` (enabled, `/etc/systemd/system/`, skripta `/usr/local/sbin/turbo-follow-profile`, rezervna kopija starije skripte `turbo-follow-profile.bak`) sluša D-Bus `net.hadess.PowerProfiles` (`ActiveProfile`) i pri promeni profila i pri startu upisuje:
+`turbo-follow-profile.service` (enabled, `/etc/systemd/system/`, skripta `/usr/local/sbin/turbo-follow-profile`, rezervne kopije starijih skripti `turbo-follow-profile.bak` i `turbo-follow-profile.bak-2026-10-15`) sluša D-Bus `net.hadess.PowerProfiles` (`ActiveProfile`) i pri promeni profila i pri startu upisuje:
 
 - **`no_turbo`:** `0` (turbo uključen) samo za performance, `1` za ostale.
 - **`scaling_max_freq` svih jezgara:** na power-saver limit iz `/var/lib/turbo-follow-profile/saver-max-khz` (kHz, default 1600000; skripta ga ograničava na opseg CPU-a; menja ga klizač ekstenzije `powersaver-freq@local`, `extensions.md`); na ostalim profilima `cpuinfo_max_freq`, čitan uživo posle upisa `no_turbo` (3.7 GHz sa turbom, 2.5 GHz bez njega).
 - **Idle cap:** ekstenzija `powersaver-freq@local` upisuje u `/var/lib/turbo-follow-profile/idle` nivo `0` (aktivan), `1` (15 s bez miša/tastature) ili `2` (30 s). Power-saver pri nivou ≥1: `cpuinfo_min_freq` (800 MHz) umesto klizača. Balanced pri nivou 2: `BALANCED_IDLE_KHZ` = 1 GHz (u skripti). Na punjaču (`/sys/class/power_supply/ADP1/online` = 1) balanced se ne spušta, a power-saver se spušta.
-- **Brzina reakcije:** na power-saver i balanced servis proverava fajlove (`saver-max-khz`, `idle`, punjač) na svakih 0,3 s, na performance na 2 s; trenutni profil čuva u `/run/turbo-follow-profile.profile`.
+- **Brzina reakcije:** na power-saver i balanced servis proverava fajlove (`saver-max-khz`, `idle`, punjač) na svakih 0,3 s, na performance na 2 s; trenutni profil čuva u `/run/turbo-follow-profile.profile`. Petlja ne pravi procese (`read` umesto `cat`/`$(...)`, a umesto `sleep` koristi `read -t` iz pipe-a), pa troši ~0,4 % jednog jezgra; ranije ~5 % (oko 30 procesa u sekundi). Provera: `usage_usec` u `/sys/fs/cgroup/system.slice/turbo-follow-profile.service/cpu.stat` raste ~4 ms u sekundi. Vraćanje na staru petlju: `sudo cp /usr/local/sbin/turbo-follow-profile.bak-2026-10-15 /usr/local/sbin/turbo-follow-profile && sudo systemctl restart turbo-follow-profile`.
 - **PPD:** čita `no_turbo` samo pri startu (sysfs ne šalje inotify), pa bi posle paljenja turba javljao `Degraded: high-operating-temperature`; zato servis, ako je oznaka postavljena, restartuje `power-profiles-daemon.service` (najviše jednom u 10 s). PPD sam ovde ništa ne menja (nema EPP-a ni platform profila, `intel_pstate` je passive). Svetlinu ekrana servis ne dira (to radi ekstenzija).
 - **Pokretanje na bootu:** `[Install]` je `WantedBy=graphical.target` (isto i `lid-ignore-performance.service`). Ubuntuov `power-profiles-daemon` je `After=multi-user.target` i `WantedBy=graphical.target`, pa je `WantedBy=multi-user.target` uz `After=power-profiles-daemon` pravilo krug, i systemd je pri bootu 2026-10-15 izbacio naš servis (`journalctl -b | grep 'ordering cycle'`), pa se frekvencija i turbo nisu menjali sa profilom. **Provera:** `systemctl is-active turbo-follow-profile` posle boota daje `active`, a `powerprofilesctl set power-saver` spušta `scaling_max_freq` na vrednost klizača (provereno 2026-10-15: power-saver 1200000 kHz, performance 3700000, balanced 2500000).
 - **Ručno:** `echo 0|1 | sudo tee /sys/devices/system/cpu/intel_pstate/no_turbo` (važi do sledeće promene profila).
