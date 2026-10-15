@@ -143,6 +143,7 @@ Ne može da se vrati: prateći xorg fajlovi.
 ## Shell i terminal
 
 - Aliasi su u `~/.bash_aliases` (učitava ga `~/.bashrc`), ne u samom `~/.bashrc`. **Vraćanje:** prebaciti sadržaj nazad u `~/.bashrc` i obrisati `~/.bash_aliases`.
+- Aliasi koji pokreću monitore kroz sudo (da vide sve procese/senzore): `htop`, `powertop`, `btop` (dodat 2026-10-15). **Vraćanje:** obrisati odgovarajuću `alias` liniju iz `~/.bash_aliases`.
 - **GNOME Terminal, F10 slobodan za aplikacije (htop `F10` = Quit):** `gsettings set org.gnome.Terminal.Legacy.Settings menu-accelerator-enabled false`. **Vraćanje:** isto sa `true`.
 
 ## Podrazumevani pregledač (Firefox)
