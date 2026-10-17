@@ -35,6 +35,24 @@ Ista mašina i kernel, profil performance. Uzorkovanje na 5 s: ukupna CPU upotre
 - Limit frekvencije (klizač) pomeran je tokom runova, pa su takt i throttle neuporedivi između njih. Okvirna „zlatna sredina“ za performance je 2800–3000 MHz.
 - Ponavljanje: komande iz tabele, bez roota; uzorkuje se sysfs i `/proc/stat`. Razdvajanje uzroka toplote (prašina/pasta) traži mirovanje posle 10 min i isti test na fiksnom taktu pre i posle čišćenja.
 
+## Sweep limita frekvencije, skill `cpu-stress-test` (2026-10-17)
+
+Ista mašina i kernel, na punjaču, profil performance, `stress-ng -c 8 --cpu-method matrixprod`. Po limitu: hlađenje do ~60 °C, pa 3 faze od 30 s: steady (`-l 30`), bursty (5 s 100% / 5 s mirovanje), sustained (100%). Skill i skripta: `claude-config.md`.
+
+Sustained (100%):
+
+| Limit (MHz) | Maks. temp. | Stvarni takt | Throttle | bogo ops/s | vs 2500 |
+|---|---|---|---|---|---|
+| 2500 | 81 °C | 2494 | 0 | 3837 | – |
+| 2800 | 92 °C | 2793 | 0 | 4383 | +14% |
+| 3000 | 99 °C | 2955 | 2802 | 4488 | +17% |
+| 3300 | 100 °C | 2911 | 8470 | 4454 | +16% |
+| 3700 | 100 °C | 2964 | 9868 | 4500 | +17% |
+
+- Bursty (bogo ops/s): 3868, 4349, 4596, 4686, 4724 (+12% na 2800, +22% na 3700), throttle 0 do 2800, 2802 sustained na 3000. Steady na 3300 i 3700: maks. 99–100 °C i throttle (674 / 6786) i pri 30% opterećenja.
+- **Zaključak: iznad 3000 MHz stvarni takt ne raste (~2,9–3,0 GHz), limit nije ograničavajući nego toplota.** Preporuka za performance je 2800 MHz (+14%, bez throttlinga, 92 °C); 3000 MHz je granica (+2,5% više, 99 °C, throttle); 3300 i 3700 nemaju smisla na ovom hlađenju.
+- Ograničenja: 30 s po fazi ne dostiže termalnu ravnotežu (temperatura na 2800 u dužem radu je verovatno viša), faze idu redom pa sustained počinje zagrejan, mirovanje ~57–60 °C, prašina i pasta nisu čišćeni.
+
 ## Trajanje boota
 
 Trenutno **14,2 s** (2,0 s kernel + 12,2 s userspace; pre izmene 23,6 s). Uzrok je bio `gpu-manager.service` (10,4 s): čekao je NVIDIA udev pravila koja nikad ne stižu, a `gdm.service` ima `After=gpu-manager.service`. Najsporije je sada `gdm.service` (5,1 s), pa `snapd` (~2,5 s), sve paralelno.
