@@ -83,10 +83,10 @@ Globalni skill `~/.claude/skills/remind-skill/SKILL.md` (ime `remind`) dodaje, b
 
 ## Skill cpu-stress-test
 
-Globalni skill `~/.claude/skills/cpu-stress-test-skill/` (`SKILL.md` + `sweep.sh`) pokreće test opterećenja CPU-a po limitima frekvencije na performance profilu (default 2500, 2800, 3000, 3300, 3700 MHz; `full` = svakih 100 MHz). Po limitu: hlađenje do ~60 °C, pa tri faze od po 30 s (`stress-ng -c 8 --cpu-method matrixprod`): steady `-l 30`, bursty 5 s/5 s i sustained 100%. Meri temperaturu, stvarni takt, ventilator, `thermal_throttle` brojač i bogo ops/s; ispisuje tabelu i `results.tsv`.
+Globalni skill `~/.claude/skills/cpu-stress-test-skill/` (`SKILL.md` + `sweep.sh`) pokreće test opterećenja CPU-a po limitima frekvencije na performance profilu (default 2500, 2800, 3000, 3300, 3700 MHz; `full` = svakih 100 MHz). Po limitu: hlađenje do ~60 °C, pa tri faze od po 30 s, menja se sa `-t <sekunde>` ili `PHASE_SECS` (`stress-ng -c 8 --cpu-method matrixprod`): steady `-l 30`, bursty 5 s/5 s i sustained 100%. Meri temperaturu, stvarni takt, ventilator, `thermal_throttle` brojač i bogo ops/s; ispisuje tabelu i `results.tsv`.
 
 - Ne traži root: limit upisuje u `/var/lib/turbo-follow-profile/perf-max-khz` (vidi „Turbo i CPU frekvencija po power profilu“ u `macbook-setup.md`) i privremeno prebacuje profil na performance; pri izlasku (i na Ctrl-C) vraća prethodni limit i profil.
-- Provera: `PHASE_SECS=8 COOLDOWN_MAX=0 ~/.claude/skills/cpu-stress-test-skill/sweep.sh 2800000` ispisuje tri reda i na kraju `restored: profile=... cap=...` (provereno 2026-10-17).
+- Provera: `COOLDOWN_MAX=0 ~/.claude/skills/cpu-stress-test-skill/sweep.sh -t 8 2800000` ispisuje tri reda i na kraju `restored: profile=... cap=...` (provereno 2026-10-17).
 - Zavisi od paketa `stress-ng`.
 - Vraćanje: obrisati `~/.claude/skills/cpu-stress-test-skill/`.
 
