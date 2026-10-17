@@ -202,6 +202,7 @@ Ne može da se vrati: prateći xorg fajlovi.
 Jedan red po uklonjenoj stvari: šta, kada i kako se vraća.
 
 - **Noble ostaci** (2026-10-10): stari headers/tools paketi, `postgresql-16`, `python3.11`/`3.12`, 87 `rc` paketa, rezervni kernel `6.8.0-146`. Jedini kernel je `7.0.0-38`; ako se ne podigne, live USB ili stariji kernel iz repozitorijuma.
+- **`stress`** (1.0.7, `apt purge`; 2026-10-17 zamenjen paketom `stress-ng`): `stress` je samo `sqrt()` petlja na 100% i nije reprezentativan; `stress-ng` ima `--cpu-load`, više metoda i `--metrics-brief`. Vraćanje: `sudo apt install stress`.
 - **`nvtop`** (3.2.0, `apt purge`; 2026-10-15): GPU monitor, u režimu A vidi samo Intel clock; `sudo apt install nvtop`.
 - **`igt-gpu-tools`** (`intel_gpu_top`, `gputop`; 2026-10-15, purge sa `intel-gpu-tools` i `liboping0`): `sudo apt install igt-gpu-tools`.
 - **`xrdp`, `xfce4`, `xfce4-goodies`** (2026-10-10): `sudo apt install xrdp xfce4`.

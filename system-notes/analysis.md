@@ -17,9 +17,23 @@ Ista mašina (i7-4870HQ, MacBookPro11,3, kernel 7.0.0-38), test `stress --cpu $(
 | performance 2800 MHz (60 s, čist test) | 89–97 °C | ~2,8 GHz | bez promene |
 | performance 3700 MHz (30–180 s) | 99–100 °C | 2,8–3,1 GHz | +58000 do +65000 po testu |
 
-- **Zaključak: 2800 MHz je izabrana „zlatna sredina“ za performance** (~12% iznad balanced, bez termalnog throttlinga u 60 s). `perf-max-khz` je ostavljen na `2800000`. Limiti oko 2600 MHz su mereni samo u nečistim testima (klizač pomeran tokom testa).
+- **Zaključak: 2800 MHz je izabrana „zlatna sredina“ za performance** (~12% iznad balanced, bez termalnog throttlinga u 60 s). `perf-max-khz` je tada bio `2800000`; trenutno je `3000000` (korisnik ga je podigao posle mešanog testa, vidi niže). Limiti oko 2600 MHz su mereni samo u nečistim testima (klizač pomeran tokom testa).
 - Ograničenja: testovi traju 30–60 s (duže opterećenje nije mereno), `avgMHz` je trenutni prosek iz `/proc/cpuinfo` pa može preći limit, a sa starom pastom/prašinom se vrednosti mogu poboljšati posle čišćenja i repastiranja (nije urađeno; mirovanje ~55–61 °C).
-- Ponavljanje: samo čitanje sysfs-a i `stress`; ne treba root.
+- Ponavljanje: samo čitanje sysfs-a i `stress-ng --cpu $(nproc) --timeout 60` (ekvivalent starog `stress --cpu`; `stress` je zamenjen, vidi „Uklonjeno“ u `macbook-setup.md`); ne treba root.
+
+## Mešani test CPU + RAM (`stress-ng`, 2026-10-17)
+
+Ista mašina i kernel, profil performance. Uzorkovanje na 5 s: ukupna CPU upotreba iz `/proc/stat`, `x86_pkg_temp`, takt, ventilator, `thermal_throttle` brojač, zauzeta RAM.
+
+| Komanda (60 s) | Ukupni CPU | Maks. temp. | Takt | Throttle |
+|---|---|---|---|---|
+| `stress-ng -c 8 -l 70 -m 2 --vm-bytes 1G -t 60 -M` | ~94–98% | 100 °C | 2,5–3,3 GHz | ~+8000 |
+| `stress-ng -c 8 -l 45 -m 2 --vm-bytes 1G -t 60 -M` (dva runa) | 72–79% | 99–100 °C | 2,2–3,0 GHz | +6216 / +760 |
+
+- **`-l` važi samo za CPU worker-e, VM worker-i ga ignorišu** (~99% jezgra po instanci). Ukupno opterećenje je zato zbir: 8 × l% + 2 × ~1 jezgro. Za ukupno ~70% treba `-l 45`, a ne `-l 70`.
+- Ventilator ~6150 RPM celo vreme (maksimum), temperatura posle testa pada na ~65 °C za ~5 s. To je očekivano zbog male toplotne mase čipa i ništa ne govori o stanju paste; paste utiče na rast temperature pod opterećenjem.
+- Limit frekvencije (klizač) pomeran je tokom runova, pa su takt i throttle neuporedivi između njih. Okvirna „zlatna sredina“ za performance je 2800–3000 MHz.
+- Ponavljanje: komande iz tabele, bez roota; uzorkuje se sysfs i `/proc/stat`. Razdvajanje uzroka toplote (prašina/pasta) traži mirovanje posle 10 min i isti test na fiksnom taktu pre i posle čišćenja.
 
 ## Trajanje boota
 
@@ -31,7 +45,7 @@ Trenutno **14,2 s** (2,0 s kernel + 12,2 s userspace; pre izmene 23,6 s). Uzrok 
 
 **apt (ručno instalirano):**
 - Razvoj: `git`, `build-essential`, `gcc`, `g++`, `nasm`, `pkg-config`, `checkinstall`, `dkms`, `code` (.deb), `openjdk-17-jdk-headless`, `python-is-python3`, `pipx`, `docker-ce` + `containerd.io`, `mongodb-mongosh`, `pgadmin4-desktop`, `xvfb`, `adb`
-- Hardver i sistem: `broadcom-sta-dkms`, `mbpfan`, `lm-sensors`, `powertop`, `intel-gpu-tools`, `vainfo`, `mesa-utils`, `efibootmgr`, `gparted`, `kyocera-sane`, `stress`, `systemd-zram-generator`, `zenity`
+- Hardver i sistem: `broadcom-sta-dkms`, `mbpfan`, `lm-sensors`, `powertop`, `intel-gpu-tools`, `vainfo`, `mesa-utils`, `efibootmgr`, `gparted`, `kyocera-sane`, `stress-ng`, `systemd-zram-generator`, `zenity`
 - Aplikacije: `google-chrome-stable`, `vlc`, `transmission`, `copyq`, `imagemagick`, `simple-scan`, `htop`, `autojump`, `screen`, `curl`
 - Ostalo: `ibus-table-cangjie*`, `xfonts-cyrillic`, `xfonts-scalable`, `wbritish`
 
